@@ -13,8 +13,8 @@
 <body style="background:#fdc9a7;">
 <div id="main" class="container-fluid h-100 d-flex flex-column">
     <div class="row flex-shrink-0 py-0" style="background:#bfcafd;">
-        <div class="col alert alert-primary mb-0">현재시간</div>
-        <div class="col alert alert-info mb-0">00:02:16</div>
+        <div id="start-interval" class="col alert alert-primary mb-0">현재시간</div>
+        <div id="stop-interval" class="col alert alert-info mb-0">00:02:16</div>
         <div class="col alert alert-success mb-0">이전결과</div>
         <div class="col alert alert-danger mb-0">00:02</div>
         <div class="col alert alert-warning mb-0">3904.93</div>
@@ -37,6 +37,10 @@
         <div class="col alert alert-info mb-0">3904.93</div>
         <div class="col alert alert-warning mb-0">HIGH</div>
     </div>
+</div>
+
+<div id="overlay" onclick="overlayOff()">
+    <div id="overlay-text">스페셜 매칭 시작!!!!!</div>
 </div>
 
 <script src="https://www.amcharts.com/lib/4/core.js"></script>
