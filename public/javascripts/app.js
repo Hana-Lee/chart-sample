@@ -1,6 +1,6 @@
 (function () {
 	am4core.useTheme(am4themes_animated);
-
+	am4core.useTheme(am4themes_dark);
 	function generateData() {
 		var result = [];
 		for (var i = 0; i < 60; i++) {
@@ -14,7 +14,7 @@
 		// chart.paddingRight = 20;
 		chart.paddingLeft = 2;
 		chart.paddingRight = 20;
-		chart.colors.step = 2;
+		chart.colors.step = 3;
 
 		chart.data = generateData();
 
