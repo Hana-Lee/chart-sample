@@ -35,3 +35,14 @@ body {
   transform: translate(-50%,-50%);
   -ms-transform: translate(-50%,-50%);
 }
+
+.alert {
+  padding: 0;
+  font-size: 2em;
+  text-align: center;
+  font-weight: bold;
+}
+
+#left_chart_div, #right_chart_div {
+  padding: 0;
+}
