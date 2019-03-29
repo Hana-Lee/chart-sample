@@ -50,6 +50,20 @@
 <script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
 <script src="https://www.amcharts.com/lib/4/lang/ko_KR.js"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.slim.js"></script>
+<!--<script src="/socket.io/socket.io.js"></script>-->
+<script>
+    var socket = io.connect('http://localhost:3000');
+    socket.on('news', function (data) {
+    	console.log('news data', data);
+	    socket.emit('my other event', { my: 'data' });
+    });
+    var sHeight = screen.height;
+    var sWidth = screen.width;
+    document.querySelector('#start-interval').textContent = sHeight;
+    document.querySelector('#stop-interval').textContent = sWidth;
+</script>
 <script src="/javascripts/app.js"></script>
 </body>
 </html>
