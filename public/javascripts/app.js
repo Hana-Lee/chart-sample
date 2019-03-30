@@ -268,7 +268,10 @@
 		// bullet.circle.fill = trend2.stroke;
 	}
 
-	function startInterval() {
+	function startInterval(time) {
+		if (!time) {
+			time = 2000;
+		}
 		var count = 0;
 		var endBaseValue = null;
 		var trendLine = null;
@@ -404,7 +407,7 @@
 				}
 				count++;
 			});
-		}, 2000);
+		}, time);
 	}
 
 	var timeInterval = null;
@@ -428,6 +431,16 @@
 	document.querySelector('#start-interval').addEventListener('click', function () {
 		showOverlay();
 		startInterval();
+	});
+
+	document.querySelector('#window-height').addEventListener('click', function () {
+		showOverlay();
+		startInterval(1000);
+	});
+
+	document.querySelector('#game-over').addEventListener('click', function () {
+		showOverlay();
+		startInterval(750);
 	});
 
 	document.querySelector('#current-time').addEventListener('click', function () {
