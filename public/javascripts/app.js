@@ -400,7 +400,7 @@
 					// rightChart.invalidateData();
 				}
 
-				document.querySelector('#current-value').textContent = mainDataValue;
+				document.querySelector('#current-value').textContent = mainDataValue || value3;
 				if (count === basePoint) {
 					trendLine = createTrendLine2();
 					document.querySelector('#base-value').textContent = mainDataValue;
