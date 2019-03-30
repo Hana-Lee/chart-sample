@@ -365,18 +365,7 @@
 				}, true);
 				mainChart.invalidateRawData();
 
-				if (count < basePoint) {
-					leftChart.data[0].value = mainDataValue;
-					if (count === 0) {
-						leftChart.data[0].baseValue = startBaseValue;
-					}
-					if (mainDataValue >= startBaseValue) {
-						leftChart.data[0].color = '#ff4c4a';
-					} else {
-						leftChart.data[0].color = '#007bff';
-					}
-					leftChart.invalidateRawData();
-				} else {
+				if (count > basePoint) {
 					rightChart.data[0].value = value3;
 					if (count === basePoint) {
 						rightBaseValue = value3;
@@ -389,6 +378,22 @@
 					}
 
 					rightChart.invalidateRawData();
+				} else {
+					// if (count > basePoint) {
+					// 	leftChart.data[0].value = value3;
+					// } else {
+						leftChart.data[0].value = mainDataValue;
+					// }
+
+					if (count === 0) {
+						leftChart.data[0].baseValue = startBaseValue;
+					}
+					if (mainDataValue >= startBaseValue) {
+						leftChart.data[0].color = '#ff4c4a';
+					} else {
+						leftChart.data[0].color = '#007bff';
+					}
+					leftChart.invalidateRawData();
 					// rightChart.invalidateData();
 				}
 
@@ -399,7 +404,7 @@
 				}
 				count++;
 			});
-		}, 500);
+		}, 1000);
 	}
 
 	var timeInterval = null;
