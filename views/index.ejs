@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title><%= title %></title>
 
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel='stylesheet' href='/stylesheets/style.css'/>
@@ -22,11 +23,11 @@
         <div class="col alert alert-dark mb-0">OVER</div>
     </div>
     <div class="row flex-fill d-flex justify-content-start">
-        <div id="left_chart_div" class="col" style="border:1px solid green;">Left chart area</div>
+        <div id="left_chart_div" class="col">Left chart area</div>
         <div id="chart_div" class="col-10">
             Chart area
         </div>
-        <div id="right_chart_div" class="col" style="border: 1px solid red;">Right chart area</div>
+        <div id="right_chart_div" class="col">Right chart area</div>
     </div>
     <div class="row flex-shrink-0 mb-0" style="background:#bfcafd;">
         <div class="col alert alert-primary mb-0">현재가격</div>
@@ -68,6 +69,9 @@
     // document.querySelector('#stop-interval').textContent = sWidth + 'w';
     // document.querySelector('#window-height').textContent = wHeight + 'h';
     // document.querySelector('#window-width').textContent = wWidth + 'w';
+
+    am4core.useTheme(am4themes_animated);
+    am4core.useTheme(am4themes_dark);
 </script>
 <script src="/javascripts/app.js"></script>
 </body>
