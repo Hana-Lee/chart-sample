@@ -404,7 +404,7 @@
 				}
 				count++;
 			});
-		}, 1000);
+		}, 2000);
 	}
 
 	var timeInterval = null;
