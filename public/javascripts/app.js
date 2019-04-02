@@ -1,6 +1,15 @@
 (function () {
-	var min = 3901;
-	var max = 3908;
+	var socket = io.connect(location.href);
+	socket.on('news', function (data) {
+		console.log('news data', data);
+		socket.emit('my other event', { my: 'data' });
+	});
+	socket.on('priceData', function (data) {
+		console.log('price data', data);
+		start(data);
+	});
+	var min = 0;
+	var max = 0;
 	var startBaseValue = null;
 	var leftBaseValue = null;
 	var rightBaseValue = null;
@@ -16,7 +25,13 @@
 		var result = [];
 		for (var i = 0; i < 60; i++) {
 			result.push({
-				time: i, value: i === 0 ? initValue : null, openValue: initValue, value1: null, value2: null, timeText: '', townSize: 0,
+				time: i,
+				value: i === 0 ? initValue : null,
+				openValue: initValue,
+				value1: null,
+				value2: null,
+				timeText: '',
+				townSize: 0,
 				value3: null,
 				value4: null,
 				startBaseTime: i,
@@ -181,7 +196,6 @@
 		valueAxis.cursorTooltipEnabled = false;
 		valueAxis.strictMinMax = true;
 
-
 		valueAxis.min = min;
 		valueAxis.max = max;
 
@@ -224,6 +238,7 @@
 	var leftChart = null;
 	var rightChart = null;
 	var intervalId;
+	var trendLine = null;
 
 	function createTrendLine() {
 		var trend = mainChart.series.push(new am4charts.LineSeries());
@@ -268,146 +283,149 @@
 		// bullet.circle.fill = trend2.stroke;
 	}
 
-	function startInterval(time) {
-		if (!time) {
-			time = 2000;
+	var count = 0;
+	var trendLine = null;
+	function start(data) {
+		if (min === 0) {
+			min = data.minPrice;
+			max = data.maxPrice;
 		}
-		var count = 0;
 		var endBaseValue = null;
-		var trendLine = null;
-		if (mainChart) {
-			mainChart.data = generateData();
+		// if (mainChart &&) {
+		// 	mainChart.data = generateData();
+		// }
+		var data1Value = data.biPrice;
+		var data2Value = data.ixPrice;
+		var mainDataValue = data.avgPrice;
+		if (!mainChart) {
+			mainChart = window.lhn = makeCenterChart(mainDataValue);
+			createTrendLine();
 		}
-		intervalId = setInterval(function () {
-			axios.get('data', { params: { index: count } }).then(function (res) {
-				var data = res.data;
-				var data1Value = Number(data.data1.value);
-				var data2Value = Number(data.data2.value);
-				var mainDataValue = ((data1Value + data2Value) / 2).toFixed(2);
-				if (!mainChart) {
-					mainChart = window.lhn = makeCenterChart(mainDataValue);
-					createTrendLine();
-				}
-				if (!leftChart) {
-					leftChart = makeSideChart('left_chart_div', [{ 'base': 'One', 'value': mainDataValue, baseValue: mainDataValue, color: '#ff4c4a' }]);
-				}
-				if (count === 60) {
-					document.querySelector('#result-value').textContent = mainDataValue;
-					clearInterval(intervalId);
-					return false;
-				}
+		if (!leftChart) {
+			leftChart = makeSideChart('left_chart_div', [{
+				'base': 'One',
+				'value': mainDataValue,
+				baseValue: mainDataValue,
+				color: '#ff4c4a',
+			}]);
+		}
+		if (count === 60) {
+			document.querySelector('#result-value').textContent = mainDataValue;
+			return false;
+		}
 
-				var townSize = 0;
-				var timeText = '';
-				if (count === basePoint) {
-					if (!rightChart) {
-						rightChart = makeSideChart('right_chart_div', [{
-							'base': 'One',
-							'value': mainDataValue,
-							baseValue: mainDataValue,
-							color: '#ff4c4a'
-						}]);
-					}
-					townSize = 8;
-				}
-				if (count <= 0 || count === basePoint || count === 59) {
-					timeText = data.data1.time;
-				}
-				var time = count;
-				var startBaseTime = count;
-				var endBaseTime = count;
-				var value3 = null;
-				var value4 = null;
-				if (count === 0) {
-					startBaseValue = mainDataValue;
-					leftBaseValue = mainDataValue;
-				}
-				if (count < basePoint) {
-					startBaseTime = 0;
-				}
-				if (count === basePoint) {
-					endBaseValue = mainDataValue;
-					baseValue = mainDataValue;
-				}
-				if (count >= basePoint) {
-					endBaseTime = 59;
-				}
-				if (trendLine) {
-					trendLine.data[0].value = mainDataValue;
-					trendLine.data[1].value = mainDataValue;
-					if (mainDataValue >= baseValue) {
-						trendLine.data[0].color = '#ff4c4a';
-						trendLine.data[1].color = '#ff4c4a';
-					} else {
-						trendLine.data[0].color = '#007bff';
-						trendLine.data[1].color = '#007bff';
-					}
-					trendLine.invalidateRawData();
-				}
+		var townSize = 0;
+		var timeText = '';
+		if (count === basePoint) {
+			if (!rightChart) {
+				rightChart = makeSideChart('right_chart_div', [{
+					'base': 'One',
+					'value': mainDataValue,
+					baseValue: mainDataValue,
+					color: '#ff4c4a',
+				}]);
+			}
+			townSize = 8;
+		}
+		if (count <= 0 || count === basePoint || count === 59) {
+			timeText = data.timeString;
+		}
+		var time = count;
+		var startBaseTime = count;
+		var endBaseTime = count;
+		var value3 = null;
+		var value4 = null;
+		if (count === 0) {
+			startBaseValue = mainDataValue;
+			leftBaseValue = mainDataValue;
+		}
+		if (count < basePoint) {
+			startBaseTime = 0;
+		}
+		if (count === basePoint) {
+			endBaseValue = mainDataValue;
+			baseValue = mainDataValue;
+		}
+		if (count >= basePoint) {
+			endBaseTime = 59;
+		}
 
-				if (count >= basePoint) {
-					value3 = mainDataValue;
-				}
-				if (count > basePoint) {
-					mainDataValue = null;
-					leftBaseValue = null;
-				}
+		if (count === basePoint) {
+			trendLine = createTrendLine2();
+			document.querySelector('#base-value').textContent = mainDataValue;
+		}
 
-				mainChart.addData({
-					time: time,
-					value: mainDataValue,
-					value3: value3,
-					townSize: townSize,
-					timeText: timeText,
-					value1: data.data1.value,
-					value2: data.data2.value,
-					startBaseTime: startBaseTime,
-					endBaseTime: endBaseTime,
-					startBaseValue: startBaseValue,
-					endBaseValue: endBaseValue,
-				}, true);
-				mainChart.invalidateRawData();
+		console.log('trend line', trendLine, mainDataValue, count, basePoint);
+		if (trendLine) {
+			trendLine.data[0].value = mainDataValue;
+			trendLine.data[1].value = mainDataValue;
+			if (mainDataValue >= baseValue) {
+				trendLine.data[0].color = '#ff4c4a';
+				trendLine.data[1].color = '#ff4c4a';
+			} else {
+				trendLine.data[0].color = '#007bff';
+				trendLine.data[1].color = '#007bff';
+			}
+			trendLine.invalidateRawData();
+		}
 
-				if (count > basePoint) {
-					rightChart.data[0].value = value3;
-					if (count === basePoint) {
-						rightBaseValue = value3;
-						rightChart.data[0].baseValue = rightBaseValue;
-					}
-					if (value3 >= rightBaseValue) {
-						rightChart.data[0].color = '#ff4c4a';
-					} else {
-						rightChart.data[0].color = '#007bff';
-					}
+		if (count >= basePoint) {
+			value3 = mainDataValue;
+		}
+		if (count > basePoint) {
+			mainDataValue = null;
+			leftBaseValue = null;
+		}
 
-					rightChart.invalidateRawData();
-				} else {
-					// if (count > basePoint) {
-					// 	leftChart.data[0].value = value3;
-					// } else {
-						leftChart.data[0].value = mainDataValue;
-					// }
+		mainChart.addData({
+			time: time,
+			value: mainDataValue,
+			value3: value3,
+			townSize: townSize,
+			timeText: timeText,
+			value1: data1Value,
+			value2: data2Value,
+			startBaseTime: startBaseTime,
+			endBaseTime: endBaseTime,
+			startBaseValue: startBaseValue,
+			endBaseValue: endBaseValue,
+		}, true);
+		mainChart.invalidateRawData();
 
-					if (count === 0) {
-						leftChart.data[0].baseValue = startBaseValue;
-					}
-					if (mainDataValue >= startBaseValue) {
-						leftChart.data[0].color = '#ff4c4a';
-					} else {
-						leftChart.data[0].color = '#007bff';
-					}
-					leftChart.invalidateRawData();
-					// rightChart.invalidateData();
-				}
+		if (count > basePoint) {
+			rightChart.data[0].value = value3;
+			if (count === basePoint) {
+				rightBaseValue = value3;
+				rightChart.data[0].baseValue = rightBaseValue;
+			}
+			if (value3 >= rightBaseValue) {
+				rightChart.data[0].color = '#ff4c4a';
+			} else {
+				rightChart.data[0].color = '#007bff';
+			}
 
-				document.querySelector('#current-value').textContent = mainDataValue || value3;
-				if (count === basePoint) {
-					trendLine = createTrendLine2();
-					document.querySelector('#base-value').textContent = mainDataValue;
-				}
-				count++;
-			});
-		}, time);
+			rightChart.invalidateRawData();
+		} else {
+			// if (count > basePoint) {
+			// 	leftChart.data[0].value = value3;
+			// } else {
+			leftChart.data[0].value = mainDataValue;
+			// }
+
+			if (count === 0) {
+				leftChart.data[0].baseValue = startBaseValue;
+			}
+			if (mainDataValue >= startBaseValue) {
+				leftChart.data[0].color = '#ff4c4a';
+			} else {
+				leftChart.data[0].color = '#007bff';
+			}
+			leftChart.invalidateRawData();
+			// rightChart.invalidateData();
+		}
+
+		document.querySelector('#current-value').textContent = mainDataValue || value3;
+		count++;
 	}
 
 	var timeInterval = null;
@@ -428,19 +446,27 @@
 		clearInterval(intervalId);
 	}
 
+	function showOverlay() {
+		document.querySelector('#overlay').style.display = 'block';
+		setTimeout(function () {
+			overlayOff();
+		}, 1000);
+	}
+
+	function overlayOff() {
+		document.querySelector('#overlay').style.display = 'none';
+	}
+
 	document.querySelector('#start-interval').addEventListener('click', function () {
 		showOverlay();
-		startInterval();
 	});
 
 	document.querySelector('#window-height').addEventListener('click', function () {
 		showOverlay();
-		startInterval(1000);
 	});
 
 	document.querySelector('#game-over').addEventListener('click', function () {
 		showOverlay();
-		startInterval(750);
 	});
 
 	document.querySelector('#current-time').addEventListener('click', function () {
@@ -450,14 +476,3 @@
 	// startInterval();
 	startTimeInterval();
 }());
-
-function showOverlay() {
-	document.querySelector('#overlay').style.display = 'block';
-	setTimeout(function () {
-		overlayOff();
-	}, 1000);
-}
-
-function overlayOff() {
-	document.querySelector('#overlay').style.display = 'none';
-}
