@@ -71,8 +71,8 @@
 		valueAxis.renderer.labels.template.disabled = true;
 		valueAxis.renderer.grid.template.disabled = true;
 		valueAxis.cursorTooltipEnabled = false;
-		valueAxis.min = min;
-		valueAxis.max = max;
+		// valueAxis.min = min;
+		// valueAxis.max = max;
 		valueAxis.strictMinMax = true;
 
 		var data1Series = chart.series.push(new am4charts.LineSeries());
@@ -126,6 +126,8 @@
 		bullet.isMeasured = false;
 
 		series.events.on('validated', function () {
+			min = valueAxis.min;
+			max = valueAxis.max;
 			if (series.dataItems.last.valueY) {
 				if (series.dataItems.last.valueY >= leftBaseValue) {
 					bullet.fill = am4core.color('#ff4c4a');
@@ -172,7 +174,9 @@
 		return chart;
 	}
 
-	function makeSideChart(chartContainer, chartData) {
+	var leftValueAxis;
+	var rightValueAxis;
+	function makeSideChart(chartContainer, chartData, position) {
 		var chart = am4core.create(chartContainer, am4charts.XYChart);
 		chart.hiddenState.properties.opacity = 0; // this makes initial fade in effect
 		chart.data = chartData;
@@ -198,6 +202,12 @@
 
 		valueAxis.min = min;
 		valueAxis.max = max;
+
+		if (position === 'left') {
+			leftValueAxis = valueAxis;
+		} else {
+			rightValueAxis = valueAxis;
+		}
 
 		var series = chart.series.push(new am4charts.ColumnSeries());
 		series.dataFields.categoryX = 'base';
@@ -227,6 +237,12 @@
 			// if (chart.data[0].value >= chart.data[0].baseValue) {
 			ev.target.fill = am4core.color(chart.data[0].color);
 			ev.target.stroke = am4core.color(chart.data[0].color);
+				leftValueAxis.min = min;
+				leftValueAxis.max = max;
+				if (rightValueAxis) {
+					rightValueAxis.min = min;
+					rightValueAxis.max = max;
+				}
 			// } else {
 			// 	ev.target.fill = am4core.color('#007bff')
 			// }
@@ -239,14 +255,15 @@
 	var rightChart = null;
 	var intervalId;
 	var trendLine = null;
-
+	var yTrendLine = null;
 	function createTrendLine() {
 		var trend = mainChart.series.push(new am4charts.LineSeries());
 		trend.dataFields.valueY = 'value';
 		trend.dataFields.categoryX = 'time';
 		trend.strokeWidth = 1;
 		trend.stroke = am4core.color('#afab58');
-		trend.data = [{ time: basePoint, value: min }, { time: basePoint, value: max }];
+		trend.data = [{ time: basePoint, value: max }, { time: basePoint, value: min }];
+		return trend;
 	}
 
 	function createTrendLine2() {
@@ -299,7 +316,12 @@
 		var mainDataValue = data.avgPrice;
 		if (!mainChart) {
 			mainChart = window.lhn = makeCenterChart(mainDataValue);
-			createTrendLine();
+			yTrendLine = createTrendLine();
+		}
+		if (yTrendLine) {
+			yTrendLine.data[0].value = max;
+			yTrendLine.data[1].value = min;
+			yTrendLine.invalidateRawData();
 		}
 		if (!leftChart) {
 			leftChart = makeSideChart('left_chart_div', [{
@@ -307,7 +329,7 @@
 				'value': mainDataValue,
 				baseValue: mainDataValue,
 				color: '#ff4c4a',
-			}]);
+			}], 'left');
 		}
 		if (count === 60) {
 			document.querySelector('#result-value').textContent = mainDataValue;
@@ -323,7 +345,7 @@
 					'value': mainDataValue,
 					baseValue: mainDataValue,
 					color: '#ff4c4a',
-				}]);
+				}], 'right');
 			}
 			townSize = 8;
 		}
