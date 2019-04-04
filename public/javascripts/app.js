@@ -403,7 +403,7 @@
 		}
 
 		if (count >= basePoint) {
-			if (document.querySelector('#base-value-overlay').style.display === 'none') {
+			if (document.querySelector('#base-value-overlay').style.display === '') {
 				document.querySelector('#base-value-overlay .binance .value').textContent = data1Value;
 				document.querySelector('#base-value-overlay .idax .value').textContent = data2Value;
 				document.querySelector('#base-value-overlay .base .value').textContent = mainDataValue;
@@ -417,7 +417,7 @@
 		}
 
 		if (count === 119) {
-			if (document.querySelector('#result-value-overlay').style.display === 'none') {
+			if (document.querySelector('#result-value-overlay').style.display === '') {
 				document.querySelector('#result-value-overlay .binance .value').textContent = data1Value;
 				document.querySelector('#result-value-overlay .idax .value').textContent = data2Value;
 				document.querySelector('#result-value-overlay .result .value').textContent = value3;
