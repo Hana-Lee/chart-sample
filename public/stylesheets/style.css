@@ -52,6 +52,6 @@ body {
 }
 
 #left_chart_div, #right_chart_div {
-    border-left: 1px solid #979797;
-    border-right: 1px solid #979797;
+    border-left: 2px solid #979797;
+    border-right: 2px solid #979797;
 }

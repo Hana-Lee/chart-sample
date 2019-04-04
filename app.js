@@ -296,7 +296,7 @@ io.on('connection', function (socket) {
 	sendData(socket);
 	setInterval(function() {
 		sendData(socket);
-	}, 2000);
+	}, 1000);
 });
 
 /**

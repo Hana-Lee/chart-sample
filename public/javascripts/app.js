@@ -5,7 +5,7 @@
 		socket.emit('my other event', { my: 'data' });
 	});
 	socket.on('priceData', function (data) {
-		console.log('price data', data);
+		// console.log('price data', data);
 		start(data);
 	});
 	var min = 0;
@@ -13,17 +13,22 @@
 	var startBaseValue = null;
 	var leftBaseValue = null;
 	var rightBaseValue = null;
-	var basePoint = 30;
+	var basePoint = 60;
 	var baseValue = 0;
 	var valueAxis = null;
 	var rightSeries = null;
 	var leftSeries = null;
 	var isSettingCompleted = false;
 	var isSettingCompleted2 = false;
+	var mainChart = null;
+	var leftChart = null;
+	var rightChart = null;
+	var intervalId;
+	var yTrendLine = null;
 
 	function generateData(initValue) {
 		var result = [];
-		for (var i = 0; i < 60; i++) {
+		for (var i = 0; i < 120; i++) {
 			result.push({
 				time: i,
 				value: i === 0 ? initValue : null,
@@ -79,6 +84,8 @@
 		data1Series.dataFields.categoryX = 'time';
 		data1Series.dataFields.valueY = 'value1';
 		data1Series.strokeWidth = 1;
+		data1Series.stroke = am4core.color('#dfdfdf');
+		data1Series.strokeOpacity = 0.3;
 		data1Series.tensionX = 0.8;
 		data1Series.connect = false;
 		// data1Series.fill = am4core.color('#cfcfcf');
@@ -87,20 +94,25 @@
 		var series = chart.series.push(new am4charts.LineSeries());
 		series.dataFields.categoryX = 'time';
 		series.dataFields.valueY = 'value';
-		series.strokeWidth = 1;
+		series.strokeWidth = 2;
 		series.tensionX = 0.8;
 		series.connect = false;
+		series.stroke = am4core .color('#28df40');
+
+		// series.stroke = am4core .color('#FFFF66');
 		// series.stroke = am4core.color('#ff4c4a');
-		series.fill = am4core.color('#ff4c4a');
+		// series.fill = am4core.color('#ff4c4a');
 
 		var series2 = chart.series.push(new am4charts.LineSeries());
 		series2.dataFields.categoryX = 'time';
 		series2.dataFields.valueY = 'value3';
-		series2.strokeWidth = 1;
+		series2.strokeWidth = 2;
 		series2.tensionX = 0.8;
 		series2.connect = false;
 		// series2.stroke = am4core.color('#ff4c4a');
-		series2.fill = am4core.color('#ff4c4a');
+		// series2.stroke = am4core .color('#9ddf95');
+		series2.stroke = am4core .color('#32CD32');
+		// series2.fill = am4core.color('#ff4c4a');
 
 		// Add bullets
 		var latitudeBullet = series2.bullets.push(new am4charts.CircleBullet());
@@ -112,6 +124,8 @@
 		data2Series.dataFields.categoryX = 'time';
 		data2Series.dataFields.valueY = 'value2';
 		data2Series.strokeWidth = 1;
+		data2Series.stroke = am4core.color('#dfdfdf');
+		data2Series.strokeOpacity = 0.3;
 		data2Series.tensionX = 0.8;
 		data2Series.connect = false;
 		// data2Series.fill = am4core.color('#acbea3');
@@ -120,7 +134,7 @@
 		// bullet at the front of the line
 		var bullet = series2.createChild(am4charts.CircleBullet);
 		bullet.circle.radius = 7;
-		bullet.fillOpacity = 1;
+		bullet.fillOpacity = 2;
 		bullet.fill = am4core.color('#007bff');
 		bullet.strokeOpacity = 0;
 		bullet.isMeasured = false;
@@ -128,6 +142,8 @@
 		series.events.on('validated', function () {
 			min = valueAxis.min;
 			max = valueAxis.max;
+			yTrendLine.data[0].value = valueAxis.max;
+			yTrendLine.data[1].value = valueAxis.min;
 			if (series.dataItems.last.valueY) {
 				if (series.dataItems.last.valueY >= leftBaseValue) {
 					bullet.fill = am4core.color('#ff4c4a');
@@ -139,17 +155,21 @@
 				bullet.validatePosition();
 			}
 
-			if (!isSettingCompleted && leftBaseValue) {
-				var range = valueAxis.createSeriesRange(series);
-				range.value = leftBaseValue;
-				range.endValue = max;
-				range.contents.stroke = am4core.color("#ff4c4a");
-				range.contents.fill = range.contents.stroke;
-				isSettingCompleted = true;
-			}
+			// if (!isSettingCompleted && leftBaseValue) {
+			// 	var range = valueAxis.createSeriesRange(series);
+			// 	range.value = leftBaseValue;
+			// 	range.endValue = max;
+			// 	range.contents.stroke = am4core.color("#ff4c4a");
+			// 	range.contents.fill = range.contents.stroke;
+			// 	isSettingCompleted = true;
+			// }
 		});
 
 		series2.events.on('validated', function () {
+			min = valueAxis.min;
+			max = valueAxis.max;
+			yTrendLine.data[0].value = valueAxis.max;
+			yTrendLine.data[1].value = valueAxis.min;
 			if (series2.dataItems.last.valueY) {
 				if (series2.dataItems.last.valueY >= baseValue) {
 					bullet.fill = am4core.color('#ff4c4a');
@@ -161,14 +181,14 @@
 				bullet.validatePosition();
 			}
 
-			if (!isSettingCompleted2 && baseValue) {
-				var range = valueAxis.createSeriesRange(series2);
-				range.value = baseValue;
-				range.endValue = max;
-				range.contents.stroke = am4core.color("#ff4c4a");
-				range.contents.fill = range.contents.stroke;
-				isSettingCompleted2 = true;
-			}
+			// if (!isSettingCompleted2 && baseValue) {
+			// 	var range = valueAxis.createSeriesRange(series2);
+			// 	range.value = baseValue;
+			// 	range.endValue = max;
+			// 	range.contents.stroke = am4core.color("#ff4c4a");
+			// 	range.contents.fill = range.contents.stroke;
+			// 	isSettingCompleted2 = true;
+			// }
 		});
 
 		return chart;
@@ -250,17 +270,11 @@
 		return chart;
 	}
 
-	var mainChart = null;
-	var leftChart = null;
-	var rightChart = null;
-	var intervalId;
-	var trendLine = null;
-	var yTrendLine = null;
 	function createTrendLine() {
 		var trend = mainChart.series.push(new am4charts.LineSeries());
 		trend.dataFields.valueY = 'value';
 		trend.dataFields.categoryX = 'time';
-		trend.strokeWidth = 1;
+		trend.strokeWidth = 2;
 		trend.stroke = am4core.color('#afab58');
 		trend.data = [{ time: basePoint, value: max }, { time: basePoint, value: min }];
 		return trend;
@@ -270,16 +284,16 @@
 		var trend2 = mainChart.series.push(new am4charts.LineSeries());
 		trend2.dataFields.valueY = 'value';
 		trend2.dataFields.categoryX = 'time';
-		trend2.strokeWidth = 1;
+		trend2.strokeWidth = 2;
 		trend2.strokeOpacity = 0.5;
 		trend2.stroke = am4core.color('#dfdfdf');
-		trend2.data = [{ time: basePoint, value: baseValue }, { time: 59, value: baseValue }];
+		trend2.data = [{ time: basePoint, value: baseValue }, { time: 119, value: baseValue }];
 
 		var trend3 = mainChart.series.push(new am4charts.LineSeries());
 		trend3.dataFields.valueY = 'value';
 		trend3.dataFields.categoryX = 'time';
 		trend3.dataFields.openValueY = 'baseValue';
-		trend3.fillOpacity = 0.2;
+		trend3.fillOpacity = 0.1;
 		// trend3.fill = am4core.color('#ff4c4a');
 		// trend3.fill = am4core.color('#007bff');
 		trend3.propertyFields.fill = "color";
@@ -289,7 +303,7 @@
 		// trend3.stroke = am4core.color('#dfdfdf');
 		trend3.data = [
 			{ time: basePoint, value: baseValue, baseValue: baseValue, color: '#007bff' },
-			{ time: 59, value: baseValue, baseValue: baseValue, color: '#007bff' },
+			{ time: 119, value: baseValue, baseValue: baseValue, color: '#007bff' },
 		];
 
 		return trend3;
@@ -303,6 +317,10 @@
 	var count = 0;
 	var trendLine = null;
 	function start(data) {
+		if ((count > 60 && count < 119) && count % 2 > 0) {
+			count++;
+			return false;
+		}
 		if (min === 0) {
 			min = data.minPrice;
 			max = data.maxPrice;
@@ -316,12 +334,7 @@
 		var mainDataValue = data.avgPrice;
 		if (!mainChart) {
 			mainChart = window.lhn = makeCenterChart(mainDataValue);
-			yTrendLine = createTrendLine();
-		}
-		if (yTrendLine) {
-			yTrendLine.data[0].value = max;
-			yTrendLine.data[1].value = min;
-			yTrendLine.invalidateRawData();
+			yTrendLine = createTrendLine(max, min);
 		}
 		if (!leftChart) {
 			leftChart = makeSideChart('left_chart_div', [{
@@ -331,7 +344,7 @@
 				color: '#ff4c4a',
 			}], 'left');
 		}
-		if (count === 60) {
+		if (count === 120) {
 			document.querySelector('#result-value').textContent = mainDataValue;
 			return false;
 		}
@@ -349,7 +362,7 @@
 			}
 			townSize = 8;
 		}
-		if (count <= 0 || count === basePoint || count === 59) {
+		if (count <= 0 || count === basePoint || count === 119) {
 			timeText = data.timeString;
 		}
 		var time = count;
@@ -369,7 +382,7 @@
 			baseValue = mainDataValue;
 		}
 		if (count >= basePoint) {
-			endBaseTime = 59;
+			endBaseTime = 119;
 		}
 
 		if (count === basePoint) {
@@ -377,7 +390,6 @@
 			document.querySelector('#base-value').textContent = mainDataValue;
 		}
 
-		console.log('trend line', trendLine, mainDataValue, count, basePoint);
 		if (trendLine) {
 			trendLine.data[0].value = mainDataValue;
 			trendLine.data[1].value = mainDataValue;
@@ -414,10 +426,13 @@
 		}, true);
 		mainChart.invalidateRawData();
 
+		if (count === basePoint) {
+			rightBaseValue = value3;
+		}
+
 		if (count > basePoint) {
 			rightChart.data[0].value = value3;
-			if (count === basePoint) {
-				rightBaseValue = value3;
+			if (rightBaseValue) {
 				rightChart.data[0].baseValue = rightBaseValue;
 			}
 			if (value3 >= rightBaseValue) {
