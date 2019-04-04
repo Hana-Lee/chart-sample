@@ -41,8 +41,31 @@
     </div>
 </div>
 
-<div id="overlay" onclick="overlayOff()">
+<div id="overlay" class="overlay" onclick="overlayOff()">
     <div id="overlay-text">스페셜 매칭 시작!!!!!</div>
+</div>
+<div id="base-value-overlay" class="overlay" onclick="baseValueOverlayOff()">
+    <table>
+        <colgroup>
+            <col width="150">
+        </colgroup>
+        <tr class="binance"><td>BINANCE</td><td><span class="value">5009.25</span></td></tr>
+        <tr class="idax"><td>IDAX</td><td><span class="value">5009.25</span></td></tr>
+        <tr class="base"><td>기준값</td><td><span class="value">5009.25</span></td></tr>
+    </table>
+<!--    <div class="binance">BINANCE:5009.25</div>-->
+<!--    <div class="idax">IDAX:5008.15</div>-->
+<!--    <div class="base-value">기준값:5009.10</div>-->
+</div>
+<div id="result-value-overlay" class="overlay" onclick="resultValueOverlayOff()">
+    <table>
+        <colgroup>
+            <col width="150">
+        </colgroup>
+        <tr class="binance"><td>BINANCE</td><td><span class="value">5009.25</span></td></tr>
+        <tr class="idax"><td>IDAX</td><td><span class="value">5009.25</span></td></tr>
+        <tr class="result"><td>결과값</td><td><span class="value">5009.25</span></td></tr>
+    </table>
 </div>
 
 <script src="https://www.amcharts.com/lib/4/core.js"></script>

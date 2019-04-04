@@ -5,7 +5,6 @@
 		socket.emit('my other event', { my: 'data' });
 	});
 	socket.on('priceData', function (data) {
-		// console.log('price data', data);
 		start(data);
 	});
 	var min = 0;
@@ -404,11 +403,26 @@
 		}
 
 		if (count >= basePoint) {
+			if (document.querySelector('#base-value-overlay').style.display === 'none') {
+				document.querySelector('#base-value-overlay .binance .value').textContent = data1Value;
+				document.querySelector('#base-value-overlay .idax .value').textContent = data2Value;
+				document.querySelector('#base-value-overlay .base .value').textContent = mainDataValue;
+				document.querySelector('#base-value-overlay').style.display = 'block';
+			}
 			value3 = mainDataValue;
 		}
 		if (count > basePoint) {
 			mainDataValue = null;
 			leftBaseValue = null;
+		}
+
+		if (count === 119) {
+			if (document.querySelector('#result-value-overlay').style.display === 'none') {
+				document.querySelector('#result-value-overlay .binance .value').textContent = data1Value;
+				document.querySelector('#result-value-overlay .idax .value').textContent = data2Value;
+				document.querySelector('#result-value-overlay .result .value').textContent = value3;
+				document.querySelector('#result-value-overlay').style.display = 'block';
+			}
 		}
 
 		mainChart.addData({
