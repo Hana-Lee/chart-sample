@@ -1,26 +1,31 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var debug = require('debug')('chart-sample:server');
-var http = require('http');
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var dataRouter = require('./routes/data');
-var moment = require('moment');
-var axios = require('axios');
+import createError from 'http-errors';
+import express from 'express';
+import * as path from 'path';
+import compression from 'compression';
+import cookieParser from 'cookie-parser';
+import logger from 'morgan';
+import debug from 'debug';
+import * as http from 'http';
+import indexRouter from './routes';
+import usersRouter from './routes/users';
+import dataRouter from './routes/data';
+import moment from 'moment';
+import axios from 'axios';
+import { Request, Response, NextFunction, Application } from 'express-serve-static-core';
+import SocketIO from 'socket.io';
 
-var app = express();
+const appDebugger = debug('chart-sample:server');
+
+const app: Application = express();
 // binance recover key CURPSZ5NAQ5JPZXX
 // var apiKey = 'xQZsNkCQRWTPM8x35hXYcHj5By0uScLX9v4d4lkFKxjdLIIHFal2YOaNoFcXaTCo';
 // var apiSecret = '09fNv6Om0s2o5bFYjbEjzowhwEJbMRE2lXb4BL2ckfxmIhoJRuif6HDyQ5Zhvuu8';
 
-/**
+/*
  API Key: xQZsNkCQRWTPM8x35hXYcHj5By0uScLX9v4d4lkFKxjdLIIHFal2YOaNoFcXaTCo
  Secret Key: 09fNv6Om0s2o5bFYjbEjzowhwEJbMRE2lXb4BL2ckfxmIhoJRuif6HDyQ5Zhvuu8
  Store your Secret Key somewhere safe. It will not be shown again.
- */
+*/
 
 /*
 IDAX response kline
@@ -101,18 +106,18 @@ BINANCE ticker response
   totalTrades: 6578
 }
 */
-var biPriceTemp = 0;
-var ixPriceTemp = 0;
-var biPrice = 0;
-var biTimestamp = 0;
-var ixPrice = 0;
-var ixTimestamp = 0;
-var prevTime = 0;
-var avgPrice = 0;
-setInterval(function () {
+let biPriceTemp = 0;
+let ixPriceTemp = 0;
+let biPrice = 0;
+let biTimestamp = 0;
+let ixPrice = 0;
+let ixTimestamp = 0;
+let prevTime = 0;
+let avgPrice = 0;
+setInterval(() => {
 	if (biPriceTemp > 0 && ixPriceTemp > 0 && biTimestamp > 0 && ixTimestamp > 0) {
-		var time;
-		var cTime = new Date().getTime();
+		let time;
+		const cTime = new Date().getTime();
 		if (!prevTime) {
 			time = 'START';
 			prevTime = new Date().getTime();
@@ -129,22 +134,17 @@ setInterval(function () {
 	}
 }, 100);
 
-setInterval(function () {
-	var p1 = axios.get('https://openapi.idax.pro/api/v2/ticker?pair=BTC_USDT');
-	// .then(function(response) {
-	// console.log('response', response.data.ticker[0].last);
-	// });
-
-	// /v1/ticker/allPrices
-	// https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT
-	var p2 = axios.get('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT');
-	Promise.all([p1, p2]).then(function (results) {
-		var now = new Date();
-		var p1Result = results[0];
-		var p2Result = results[1];
+setInterval(() => {
+	console.log('start get interval');
+	const p1 = axios.get('https://openapi.idax.pro/api/v2/ticker?pair=BTC_USDT');
+	const p2 = axios.get('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT');
+	Promise.all([p1, p2]).then((results) => {
+		const now = new Date();
+		const p1Result = results[0];
+		const p2Result = results[1];
 		if (p1Result.data.code === 10000) {
 			ixPrice = ixPriceTemp = Number(p1Result.data.ticker[0].last);
-			biPrice = biPriceTemp = Number(Number(p2Result['BTCUSDT']).toFixed(2));
+			biPrice = biPriceTemp = Number(Number(p2Result.data.price).toFixed(2));
 			avgPrice = Number(((ixPrice + biPrice) / 2).toFixed(2));
 			biTimestamp = ixTimestamp = now.getTime();
 		}
@@ -152,9 +152,10 @@ setInterval(function () {
 }, 1000);
 
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(__dirname, '../views'));
 app.set('view engine', 'ejs');
-
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: 31557600000 }));
+app.use(compression());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -166,12 +167,12 @@ app.use('/users', usersRouter);
 app.use('/data', dataRouter);
 
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
+app.use((req: Request, res: Response, next: NextFunction) => {
 	next(createError(404));
 });
 
 // error handler
-app.use(function (err, req, res, next) {
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 	// set locals, only providing error in development
 	res.locals.message = err.message;
 	res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -184,22 +185,21 @@ app.use(function (err, req, res, next) {
 /**
  * Get port from environment and store in Express.
  */
-
-var port = normalizePort(process.env.PORT || '3000');
+const port: number = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
 /**
  * Create HTTP server.
  */
+const server: http.Server = http.createServer(app);
+const io: SocketIO.Server = SocketIO(server);
 
-var server = http.createServer(app);
-var io = require('socket.io')(server);
 /**
  * Listen on provided port, on all network interfaces.
  */
 
-function sendData(socket) {
-	var data = {
+function sendData(socket: SocketIO.Socket) {
+	const data = {
 		biPrice: biPrice,
 		ixPrice: ixPrice,
 		avgPrice: avgPrice,
@@ -215,14 +215,14 @@ function sendData(socket) {
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
-io.on('connection', function (socket) {
+io.on('connection', (socket) => {
 	socket.emit('news', { hello: 'world' });
-	socket.on('my other event', function (data) {
+	socket.on('my other event', (data) => {
 		console.log('my other event data', data);
 	});
 
 	sendData(socket);
-	setInterval(function() {
+	setInterval(() => {
 		sendData(socket);
 	}, 1000);
 });
@@ -231,8 +231,8 @@ io.on('connection', function (socket) {
  * Normalize a port into a number, string, or false.
  */
 
-function normalizePort(val) {
-	var port = parseInt(val, 10);
+function normalizePort(val: any) {
+	const port = parseInt(val, 10);
 
 	if (isNaN(port)) {
 		// named pipe
@@ -251,12 +251,12 @@ function normalizePort(val) {
  * Event listener for HTTP server "error" event.
  */
 
-function onError(error) {
+function onError(error: any) {
 	if (error.syscall !== 'listen') {
 		throw error;
 	}
 
-	var bind = typeof port === 'string'
+	const bind = typeof port === 'string'
 		? 'Pipe ' + port
 		: 'Port ' + port;
 
@@ -280,7 +280,7 @@ function onError(error) {
  */
 
 function onListening() {
-	var addr = server.address();
-	var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
-	debug('Listening on ' + bind);
+	const addr = server.address();
+	const bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
+	appDebugger('Listening on ' + bind);
 }
