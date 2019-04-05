@@ -1,7 +1,7 @@
 (function () {
 	var socket = io.connect(location.href);
 	socket.on('news', function (data) {
-		console.log('news data 123123', data);
+		console.log('news data', data);
 		socket.emit('my other event', { my: 'data.ts' });
 	});
 	socket.on('priceData', function (data) {
@@ -131,7 +131,7 @@
 		// data2Series.stroke = am4core.color('#acbea3');
 
 		// bullet at the front of the line
-		var bullet = series2.createChild(am4charts.CircleBullet);
+		var bullet = series.createChild(am4charts.CircleBullet);
 		bullet.circle.radius = 7;
 		bullet.fillOpacity = 2;
 		bullet.fill = am4core.color('#007bff');
@@ -143,6 +143,7 @@
 			max = valueAxis.max;
 			yTrendLine.data[0].value = valueAxis.max;
 			yTrendLine.data[1].value = valueAxis.min;
+			yTrendLine.invalidateRawData();
 			if (series.dataItems.last.valueY) {
 				if (series.dataItems.last.valueY >= leftBaseValue) {
 					bullet.fill = am4core.color('#ff4c4a');
@@ -169,6 +170,7 @@
 			max = valueAxis.max;
 			yTrendLine.data[0].value = valueAxis.max;
 			yTrendLine.data[1].value = valueAxis.min;
+			yTrendLine.invalidateRawData();
 			if (series2.dataItems.last.valueY) {
 				if (series2.dataItems.last.valueY >= baseValue) {
 					bullet.fill = am4core.color('#ff4c4a');
