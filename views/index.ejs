@@ -23,11 +23,11 @@
         <div id="game-over" class="col alert alert-dark mb-0">OVER</div>
     </div>
     <div class="row flex-fill d-flex justify-content-start">
-        <div id="left_chart_div" class="col">Left chart area</div>
-        <div id="chart_div" class="col-10">
+        <div id="base_chart_div" class="col">Left chart area</div>
+        <div id="main_chart_div" class="col-10">
             Chart area
         </div>
-        <div id="right_chart_div" class="col">Right chart area</div>
+        <div id="result_chart_div" class="col">Right chart area</div>
     </div>
     <div class="row flex-shrink-0 mb-0" style="background:#bfcafd;">
         <div class="col alert alert-primary mb-0">현재가격</div>
@@ -41,30 +41,45 @@
     </div>
 </div>
 
-<div id="overlay" class="overlay" onclick="overlayOff()">
+<div id="overlay" class="overlay">
     <div id="overlay-text">스페셜 매칭 시작!!!!!</div>
 </div>
-<div id="base-value-overlay" class="overlay" onclick="baseValueOverlayOff()">
+<div id="base-value-overlay" class="overlay">
     <table>
         <colgroup>
             <col width="150">
         </colgroup>
-        <tr class="binance"><td>BINANCE</td><td><span class="value">5009.25</span></td></tr>
-        <tr class="idax"><td>IDAX</td><td><span class="value">5009.25</span></td></tr>
-        <tr class="base"><td>기준값</td><td><span class="value">5009.25</span></td></tr>
+        <tr class="binance">
+            <td>BINANCE</td>
+            <td><span class="value">5009.25</span></td>
+        </tr>
+        <tr class="idax">
+            <td>IDAX</td>
+            <td><span class="value">5009.25</span></td>
+        </tr>
+        <tr class="base">
+            <td>기준값</td>
+            <td><span class="value">5009.25</span></td>
+        </tr>
     </table>
-<!--    <div class="binance">BINANCE:5009.25</div>-->
-<!--    <div class="idax">IDAX:5008.15</div>-->
-<!--    <div class="base-value">기준값:5009.10</div>-->
 </div>
-<div id="result-value-overlay" class="overlay" onclick="resultValueOverlayOff()">
+<div id="result-value-overlay" class="overlay">
     <table>
         <colgroup>
             <col width="150">
         </colgroup>
-        <tr class="binance"><td>BINANCE</td><td><span class="value">5009.25</span></td></tr>
-        <tr class="idax"><td>IDAX</td><td><span class="value">5009.25</span></td></tr>
-        <tr class="result"><td>결과값</td><td><span class="value">5009.25</span></td></tr>
+        <tr class="binance">
+            <td>BINANCE</td>
+            <td><span class="value">5009.25</span></td>
+        </tr>
+        <tr class="idax">
+            <td>IDAX</td>
+            <td><span class="value">5009.25</span></td>
+        </tr>
+        <tr class="base">
+            <td>결과값</td>
+            <td><span class="value">5009.25</span></td>
+        </tr>
     </table>
 </div>
 
@@ -79,17 +94,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js"></script>
 <script>
-    var sHeight = screen.height;
-    var sWidth = screen.width;
-    var wHeight = window.innerHeight;
-    var wWidth = window.innerWidth;
-    // document.querySelector('#start-interval').textContent = sHeight + 'h';
-    // document.querySelector('#stop-interval').textContent = sWidth + 'w';
-    // document.querySelector('#window-height').textContent = wHeight + 'h';
-    // document.querySelector('#window-width').textContent = wWidth + 'w';
-
-    am4core.useTheme(am4themes_animated);
-    am4core.useTheme(am4themes_dark);
+	am4core.useTheme(am4themes_animated);
+	am4core.useTheme(am4themes_dark);
 </script>
 <script src="/javascripts/app.js"></script>
 </body>

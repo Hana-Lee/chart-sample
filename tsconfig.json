@@ -1,13 +1,19 @@
 {
   "compilerOptions": {
+    "target": "esnext",
     "module": "commonjs",
-    "esModuleInterop": true,
-    "target": "es5",
-    "noImplicitAny": true,
+    //"strict": true,
+    "importHelpers": true,
     "moduleResolution": "node",
+    "noImplicitAny": false,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+
+    "esModuleInterop": true,
     "sourceMap": true,
     "outDir": "dist",
     "baseUrl": ".",
+    "allowJs": true,
     "paths": {
       "*": [
         "node_modules/*",
@@ -17,5 +23,6 @@
   },
   "include": [
     "src/**/*"
-  ]
+  ],
+  "exclude": ["node_modules"]
 }
