@@ -47,11 +47,11 @@ body {
     font-weight: 500;
 }
 
-#chart_div, #left_chart_div, #right_chart_div {
+#main_chart_div, #base_chart_div, #result_chart_div {
     padding: 0;
 }
 
-#left_chart_div, #right_chart_div {
+#base_chart_div, #result_chart_div {
     border-left: 2px solid #979797;
     border-right: 2px solid #979797;
 }
