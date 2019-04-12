@@ -144,7 +144,7 @@ setInterval(function () {
 		var p2Result = results[1];
 		if (p1Result.data.code === 10000) {
 			ixPrice = ixPriceTemp = Number(p1Result.data.ticker[0].last);
-			biPrice = biPriceTemp = Number(Number(p2Result['BTCUSDT']).toFixed(2));
+			biPrice = biPriceTemp = Number(Number(p2Result.data.price).toFixed(2));
 			avgPrice = Number(((ixPrice + biPrice) / 2).toFixed(2));
 			biTimestamp = ixTimestamp = now.getTime();
 		}

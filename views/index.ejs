@@ -11,6 +11,11 @@
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel='stylesheet' href='/stylesheets/style.css'/>
     <link rel="manifest" href="/javascripts/manifest.json">
+    <script>
+			if (!window.App) {
+				window.App = {};
+			}
+    </script>
 </head>
 <body>
 <div id="main" class="container-fluid h-100 d-flex flex-column">
@@ -93,11 +98,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.slim.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js"></script>
+<script src="/javascripts/constant.js"></script>
+<script src="/javascripts/mainChart.js"></script>
+<script src="/javascripts/upDownChart.js"></script>
 <script src="/javascripts/main.js"></script>
 <script>
-		document.addEventListener('DOMContentLoaded', function () {
-			springChartApp.start();
-		});
+	document.addEventListener('DOMContentLoaded', function() {
+		App.main.start();
+	});
 </script>
 </body>
 </html>

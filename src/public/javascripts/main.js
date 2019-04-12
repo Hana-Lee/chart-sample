@@ -112,6 +112,15 @@ var springChartApp = (function() {
 			document.querySelector('#current-value').textContent = value.toFixed(2);
 		},
 
+		/**
+		 *
+		 * @param data object
+		 * @param data.avgPrice number
+		 * @param data.maxPrice number
+		 * @param data.minPrice number
+		 * @param data.biPrice number
+		 * @param data.ixPrice number
+		 */
 		updateData: function(data) {
 			this.setMax(data.maxPrice);
 			this.setMin(data.minPrice);
@@ -132,25 +141,25 @@ var springChartApp = (function() {
 				this.mainChart.updateResultLineData(data.avgPrice, this.basePointValue);
 			}
 
-			this.mainChart.addData({
-				time: this.count,
-				value: data.avgPrice,
-				townSize: this.isBasePointCount() ? 8 : 0,
-				value1: data.biPrice,
-				value2: data.ixPrice,
-				startBaseTime: this.count,
-				endBaseTime: this.count,
-				startBaseValue: this.startBaseValue,
-				endBaseValue: this.basePointValue,
-			}, 1);
-			this.mainChart.invalidateRawData();
+			// this.mainChart.addData({
+			// 	time: this.count,
+			// 	value: data.avgPrice,
+			// 	townSize: this.isBasePointCount() ? 8 : 0,
+			// 	value1: data.biPrice,
+			// 	value2: data.ixPrice,
+			// 	startBaseTime: this.count,
+			// 	endBaseTime: this.count,
+			// 	startBaseValue: this.startBaseValue,
+			// 	endBaseValue: this.basePointValue,
+			// }, 1);
+			// this.mainChart.invalidateRawData();
 
 			if (this.isResultAreaCount()) {
 				this.resultChart.setBasePointValue(data.avgPrice);
 				this.resultChart.updateData(data);
 			} else {
-				this.baseChart.setBasePointValue(data.avgPrice);
-				this.baseChart.updateData(data);
+				// this.baseChart.setBasePointValue(data.avgPrice);
+				// this.baseChart.updateData(data);
 			}
 			this.updateCurrentValueElem(data.avgPrice);
 			this.count++;
@@ -297,12 +306,9 @@ var springChartApp = (function() {
 				result.push({
 					time: i,
 					value: i === 0 ? initValue : undefined,
-					openValue: initValue,
 					value1: undefined,
 					value2: undefined,
 					townSize: 0,
-					value3: undefined,
-					value4: undefined,
 					startBaseTime: i,
 					endBaseTime: i,
 					startBaseValue: undefined,
@@ -516,7 +522,7 @@ var springChartApp = (function() {
 					}], priceData.maxPrice, priceData.minPrice));
 				}
 
-				// App.updateData(priceData);
+				App.updateData(priceData);
 
 				this.baseLine = TrendLine.init(App.getMainChart(), priceData.maxPrice, priceData.minPrice, App.getBasePoint()).getLine();
 			}
