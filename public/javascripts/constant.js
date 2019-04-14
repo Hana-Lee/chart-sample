@@ -1,1 +1,1 @@
-App.COLOR = { UP: '#FF4C4A', DOWN: '#007BFF' };
+App.COLOR = { UP: '#98130e', DOWN: '#11469b' };

@@ -18,12 +18,12 @@ App.main = (function() {
 		timeInterval: undefined,
 
 		start: function() {
-			if (navigator.platform.toLowerCase() === 'win32') {
-				if (!window.sessionStorage.getItem('5fe0f262363b515a31f074dfc76d6351')) {
-					App.DummyChart.init();
-					return;
-				}
-			}
+			// if (navigator.platform.toLowerCase() === 'win32') {
+			// 	if (!window.sessionStorage.getItem('5fe0f262363b515a31f074dfc76d6351')) {
+			// 		App.DummyChart.init();
+			// 		return;
+			// 	}
+			// }
 			var socket = io.connect(location.href);
 			socket.on('priceData', this.dataReceivedHandler);
 			App.main.startTimer();
@@ -69,7 +69,7 @@ App.main = (function() {
 			var newData = {
 				point: this.count,
 				avgValue: priceData.avgPrice,
-				townSize: this.isBasePointCount() ? 8 : 0,
+				townSize: this.isBasePointCount() ? 7 : 0,
 				binValue: priceData.biPrice,
 				idxValue: priceData.ixPrice,
 				startBaseTime: this.count,
@@ -77,6 +77,7 @@ App.main = (function() {
 				startBaseValue: this.startBaseValue,
 				endBaseValue: this.basePointValue,
 			};
+
 			this.mainChart.addData(newData, true);
 
 			if (this.isResultAreaCount()) {
@@ -107,7 +108,7 @@ App.main = (function() {
 		},
 
 		prepareBaseChart: function(priceData) {
-			this.baseChart = new App.UpDownChart('base_chart_div', this.mainChart, priceData);
+			this.baseChart = new App.UpDownChart('base_chart_div', priceData);
 		},
 
 		getBasePoint: function() {
@@ -120,7 +121,7 @@ App.main = (function() {
 
 		startTimer: function() {
 			this.timeInterval = setInterval(function() {
-				document.querySelector('#current-time').textContent = moment().format('HH:mm:ss');
+				// document.querySelector('#current-time').textContent = moment().format('HH:mm:ss');
 			}, 1000);
 		},
 
@@ -133,11 +134,11 @@ App.main = (function() {
 		},
 
 		updateResultValueElem: function(value) {
-			document.querySelector('#result-value').textContent = value + '';
+			// document.querySelector('#result-value').textContent = value + '';
 		},
 
 		updateBaseValueElem: function(value) {
-			document.querySelector('#base-value').textContent = value + '';
+			// document.querySelector('#base-value').textContent = value + '';
 		},
 
 		isBasePointCount: function() {
@@ -149,15 +150,15 @@ App.main = (function() {
 		},
 
 		addResultChart: function(priceData) {
-			this.resultChart = new App.UpDownChart('result_chart_div', this.mainChart, priceData);
+			this.resultChart = new App.UpDownChart('result_chart_div', priceData);
 		},
 
 		showBaseValueOverlay: function(priceData) {
-			this.showValueOverlay('#base-value-overlay', priceData);
+			// this.showValueOverlay('#base_value_overlay', priceData);
 		},
 
 		showResultValueOverlay: function(priceData) {
-			this.showValueOverlay('#result-value-overlay', priceData);
+			// this.showValueOverlay('#result_value_overlay', priceData);
 		},
 
 		showValueOverlay: function(elemSelector, priceData) {
@@ -174,7 +175,7 @@ App.main = (function() {
 		},
 
 		updateCurrentValueElem: function(value) {
-			document.querySelector('#current-value').textContent = value.toFixed(2);
+			// document.querySelector('#current-value').textContent = value.toFixed(2);
 		},
 
 		updateSideChartMinMaxValue: function() {

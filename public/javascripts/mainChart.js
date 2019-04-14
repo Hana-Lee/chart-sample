@@ -2,7 +2,6 @@ App.MainChart = (function() {
 	'use strict';
 
 	function MainChart(containerId, priceData) {
-		this.leftBaseValue = 0;
 		this.baseValue = 0;
 
 		this.mainChart = this.makeChart(containerId, priceData);
@@ -35,20 +34,6 @@ App.MainChart = (function() {
 	};
 	MainChart.prototype.getMinValue = function() {
 		return this.valueAxis.min;
-	};
-
-	MainChart.prototype.updateResultLineData = function(value, basePointValue) {
-		this.resultLine.data[0].value = value;
-		this.resultLine.data[1].value = value;
-		if (value >= basePointValue) {
-			this.resultLine.data[0].color = App.COLOR.UP;
-			this.resultLine.data[1].color = App.COLOR.UP;
-		} else {
-			this.resultLine.data[0].color = App.COLOR.DOWN;
-			this.resultLine.data[1].color = App.COLOR.DOWN;
-		}
-
-		this.resultLine.invalidateRawData();
 	};
 
 	MainChart.prototype.makeChart = function(containerId, priceData) {
@@ -111,7 +96,7 @@ App.MainChart = (function() {
 		series.dataFields.categoryX = 'point';
 		series.dataFields.valueY = 'binValue';
 		series.strokeWidth = 1;
-		series.stroke = am4core.color('#dfdfdf');
+		series.stroke = am4core.color('#66363a');
 		series.strokeOpacity = 0.3;
 		series.tensionX = 0.8;
 		series.connect = false;
@@ -123,7 +108,7 @@ App.MainChart = (function() {
 		series.dataFields.categoryX = 'point';
 		series.dataFields.valueY = 'idxValue';
 		series.strokeWidth = 1;
-		series.stroke = am4core.color('#dfdfdf');
+		series.stroke = am4core.color('#2a4f66');
 		series.strokeOpacity = 0.3;
 		series.tensionX = 0.8;
 		series.connect = false;
@@ -137,13 +122,13 @@ App.MainChart = (function() {
 		series.strokeWidth = 2;
 		series.tensionX = 0.8;
 		series.connect = false;
-		series.stroke = am4core.color('#28df40');
+		series.stroke = am4core.color('#ffd524');
 		return series;
 	};
 
 	MainChart.prototype.makeBasePoint = function() {
 		var bullet = this.baseValueLine.bullets.push(new am4charts.CircleBullet());
-		bullet.circle.fill = am4core.color(App.COLOR.UP);
+		bullet.circle.fill = am4core.color('#ffd524');
 		bullet.circle.strokeWidth = 2;
 		bullet.circle.propertyFields.radius = 'townSize';
 		return bullet;
@@ -152,9 +137,9 @@ App.MainChart = (function() {
 	MainChart.prototype.makeBullet = function() {
 		var bullet = this.baseValueLine.createChild(am4charts.CircleBullet);
 		bullet.circle.radius = 7;
-		bullet.fillOpacity = 2;
-		bullet.fill = am4core.color(App.COLOR.DOWN);
-		bullet.strokeOpacity = 0;
+		bullet.fillOpacity = 1;
+		bullet.fill = am4core.color('#ffd524');
+		bullet.strokeOpacity = 1;
 		bullet.isMeasured = false;
 		return bullet;
 	};
@@ -166,12 +151,6 @@ App.MainChart = (function() {
 			this.baseLine.invalidateRawData();
 
 			if (this.baseValueLine.dataItems.last.valueY) {
-				if (this.baseValueLine.dataItems.last.valueY >= this.leftBaseValue) {
-					this.bullet.fill = am4core.color(App.COLOR.UP);
-				} else {
-					this.bullet.fill = am4core.color(App.COLOR.DOWN);
-				}
-				this.bullet.stroke = this.bullet.fill;
 				this.bullet.moveTo(this.baseValueLine.dataItems.last.point);
 				this.bullet.validatePosition();
 			}
@@ -182,8 +161,9 @@ App.MainChart = (function() {
 		var trend = this.mainChart.series.push(new am4charts.LineSeries());
 		trend.dataFields.valueY = 'value';
 		trend.dataFields.categoryX = 'point';
-		trend.strokeWidth = 2;
-		trend.stroke = am4core.color('#afab58');
+		trend.strokeWidth = 1;
+		trend.strokeOpacity = 1;
+		trend.stroke = am4core.color('#79838d');
 		trend.data = [{
 			point: App.main.getBasePoint(), value: priceData.maxPrice,
 		}, {
@@ -198,9 +178,9 @@ App.MainChart = (function() {
 		var resultBaseLine = this.mainChart.series.push(new am4charts.LineSeries());
 		resultBaseLine.dataFields.valueY = 'value';
 		resultBaseLine.dataFields.categoryX = 'point';
-		resultBaseLine.strokeWidth = 2;
-		resultBaseLine.strokeOpacity = 0.5;
-		resultBaseLine.stroke = am4core.color('#dfdfdf');
+		resultBaseLine.strokeWidth = 1;
+		resultBaseLine.strokeOpacity = 1;
+		resultBaseLine.stroke = am4core.color('#79838d');
 		resultBaseLine.data = [
 			{ point: App.main.getBasePoint(), value: baseValue },
 			{ point: App.main.getEndPoint(), value: baseValue },
@@ -214,13 +194,27 @@ App.MainChart = (function() {
 		resultDynamicLine.propertyFields.fill = 'color';
 		resultDynamicLine.propertyFields.stroke = 'color';
 		resultDynamicLine.strokeWidth = 1;
-		resultDynamicLine.strokeOpacity = 0.5;
+		resultDynamicLine.strokeOpacity = 0.1;
 		resultDynamicLine.data = [
 			{ point: App.main.getBasePoint(), value: baseValue, baseValue: baseValue, color: App.COLOR.DOWN },
 			{ point: App.main.getEndPoint(), value: baseValue, baseValue: baseValue, color: App.COLOR.DOWN },
 		];
 
 		this.resultLine = resultDynamicLine;
+	};
+
+	MainChart.prototype.updateResultLineData = function(value, basePointValue) {
+		this.resultLine.data[0].value = value;
+		this.resultLine.data[1].value = value;
+		if (value >= basePointValue) {
+			this.resultLine.data[0].color = App.COLOR.UP;
+			this.resultLine.data[1].color = App.COLOR.UP;
+		} else {
+			this.resultLine.data[0].color = App.COLOR.DOWN;
+			this.resultLine.data[1].color = App.COLOR.DOWN;
+		}
+
+		this.resultLine.invalidateRawData();
 	};
 
 	return MainChart;

@@ -1,9 +1,8 @@
 App.UpDownChart = (function() {
 	'use strict';
 
-	var UpDownChart = function(containerId, mainChart, priceData) {
+	var UpDownChart = function(containerId, priceData) {
 		this.basePointValue = 0;
-		this.mainChart = mainChart;
 
 		this.chart = am4core.create(containerId, am4charts.XYChart);
 		this.chart.hiddenState.properties.opacity = 0; // this makes initial fade in effect
@@ -16,6 +15,8 @@ App.UpDownChart = (function() {
 		this.chart.responsive.enabled = false;
 		this.chart.paddingLeft = 0;
 		this.chart.paddingRight = 0;
+		this.chart.paddingTop = 1;
+		this.chart.paddingBottom = 1;
 
 		var categoryAxis = this.chart.xAxes.push(new am4charts.CategoryAxis());
 		categoryAxis.renderer.grid.template.location = 0;

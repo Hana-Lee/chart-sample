@@ -402,11 +402,11 @@
 		}
 
 		if (count >= basePoint) {
-			if (document.querySelector('#base-value-overlay').style.display === '') {
-				document.querySelector('#base-value-overlay .binance .value').textContent = data1Value;
-				document.querySelector('#base-value-overlay .idax .value').textContent = data2Value;
-				document.querySelector('#base-value-overlay .base .value').textContent = mainDataValue;
-				document.querySelector('#base-value-overlay').style.display = 'block';
+			if (document.querySelector('#base_value_overlay').style.display === '') {
+				document.querySelector('#base_value_overlay .binance .value').textContent = data1Value;
+				document.querySelector('#base_value_overlay .idax .value').textContent = data2Value;
+				document.querySelector('#base_value_overlay .base .value').textContent = mainDataValue;
+				document.querySelector('#base_value_overlay').style.display = 'block';
 			}
 			value3 = mainDataValue;
 		}
@@ -416,11 +416,11 @@
 		}
 
 		if (count === 119) {
-			if (document.querySelector('#result-value-overlay').style.display === '') {
-				document.querySelector('#result-value-overlay .binance .value').textContent = data1Value;
-				document.querySelector('#result-value-overlay .idax .value').textContent = data2Value;
-				document.querySelector('#result-value-overlay .result .value').textContent = value3;
-				document.querySelector('#result-value-overlay').style.display = 'block';
+			if (document.querySelector('#result_value_overlay').style.display === '') {
+				document.querySelector('#result_value_overlay .binance .value').textContent = data1Value;
+				document.querySelector('#result_value_overlay .idax .value').textContent = data2Value;
+				document.querySelector('#result_value_overlay .result .value').textContent = value3;
+				document.querySelector('#result_value_overlay').style.display = 'block';
 			}
 		}
 

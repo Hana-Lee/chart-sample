@@ -77,30 +77,61 @@ body {
     padding: 0;
 }
 
-#base_chart_div {
-    border-right: 2px solid #979797;
-}
-
-#result_chart_div {
-    border-left: 2px solid #979797;
-}
-
 .overlay {
     color: #dfdfdf;
 }
 
-#base-value-overlay {
+#base_value_overlay {
     position: absolute;
     top: 20%;
     left: 15%;
     font-size: 2em;
-    display: none;
+    /*display: none;*/
 }
 
-#result-value-overlay {
+#result_value_overlay {
     position: absolute;
     top: 20%;
     right: 15%;
     font-size: 2em;
-    display: none;
+    /*display: none;*/
+}
+
+#current_time_overlay, #current_price_overlay, #up_down_overlay {
+    position: absolute;
+    top: 3%;
+    color: #cce1fa;
+    font-size: 2em;
+}
+
+#current_time_overlay {
+    left: 15%;
+    border-radius: 25px;
+    background: rgba(24, 36, 49, 0.5);
+    padding: 3px 20px;
+}
+
+#current_price_overlay {
+    right: 12%;
+}
+
+#current_price_overlay .price_group {
+    background: rgba(24, 36, 49, 0.5);
+    border-radius: 50px;
+    padding: 3px 20px;
+}
+
+#current_price_overlay .up_down_indicator {
+    background: rgba(24, 36, 49, 0.5);
+    color: #98130e;
+    padding: 3px 10px;
+    border-radius: 50px;
+}
+
+#main_chart_div {
+    background: #203040;
+}
+
+#base_chart_div, #result_chart_div {
+    background: #17222e;
 }
