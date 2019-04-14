@@ -1,7 +1,6 @@
 (function () {
 	var socket = io.connect(location.href);
 	socket.on('news', function (data) {
-		console.log('news data', data);
 		socket.emit('my other event', { my: 'data.ts' });
 	});
 	socket.on('priceData', function (data) {

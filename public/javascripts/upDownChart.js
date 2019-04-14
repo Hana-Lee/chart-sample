@@ -1,14 +1,18 @@
 App.UpDownChart = (function() {
 	'use strict';
 
-	var UpDownChart = function(containerId, initDataData, max, min) {
-		this.valueAxis = undefined;
-		this.chart = undefined;
+	var UpDownChart = function(containerId, mainChart, priceData) {
 		this.basePointValue = 0;
+		this.mainChart = mainChart;
 
 		this.chart = am4core.create(containerId, am4charts.XYChart);
 		this.chart.hiddenState.properties.opacity = 0; // this makes initial fade in effect
-		this.chart.data = initDataData;
+		this.chart.data = [{
+			'base': 'One',
+			'value': priceData.avgPrice,
+			baseValue: priceData.avgPrice,
+			color: App.COLOR.UP,
+		}];
 		this.chart.responsive.enabled = false;
 		this.chart.paddingLeft = 0;
 		this.chart.paddingRight = 0;
@@ -28,23 +32,22 @@ App.UpDownChart = (function() {
 		this.valueAxis.cursorTooltipEnabled = false;
 		this.valueAxis.strictMinMax = true;
 
-		this.valueAxis.min = min;
-		this.valueAxis.max = max;
+		this.valueAxis.min = priceData.minPrice;
+		this.valueAxis.max = priceData.maxPrice;
 
-		this.rightSeries = this.chart.series.push(new am4charts.ColumnSeries());
-		this.rightSeries.dataFields.categoryX = 'base';
-		this.rightSeries.dataFields.valueY = 'value';
-		this.rightSeries.dataFields.openValueY = 'baseValue';
-		this.rightSeries.fixedWidthGrid = true;
-		this.rightSeries.columns.template.propertyFields.fill = 'color';
-		this.rightSeries.columns.template.propertyFields.stroke = 'color';
-		this.rightSeries.columns.template.width = am4core.percent(100);
+		this.series = this.chart.series.push(new am4charts.ColumnSeries());
+		this.series.dataFields.categoryX = 'base';
+		this.series.dataFields.valueY = 'value';
+		this.series.dataFields.openValueY = 'baseValue';
+		this.series.fixedWidthGrid = true;
+		this.series.columns.template.propertyFields.fill = 'color';
+		this.series.columns.template.propertyFields.stroke = 'color';
+		this.series.columns.template.width = am4core.percent(100);
 
-		this.rightSeries.columns.template.events.on('validated', function(ev) {
+		this.series.columns.template.events.on('validated', function(ev) {
 			ev.target.fill = am4core.color(this.chart.data[0].color);
 			ev.target.stroke = am4core.color(this.chart.data[0].color);
-			this.valueAxis.min = min;
-			this.valueAxis.max = max;
+			App.main.updateSideChartMinMaxValue();
 		}.bind(this));
 	};
 
@@ -54,16 +57,24 @@ App.UpDownChart = (function() {
 		}
 	};
 
-	UpDownChart.prototype.updateData = function(data) {
-		this.chart.data[0].value = data.avgPrice;
+	UpDownChart.prototype.updateData = function(priceData) {
+		this.chart.data[0].value = priceData.avgPrice;
 		this.chart.data[0].baseValue = this.basePointValue;
-		if (data.avgPrice >= this.basePointValue) {
+		if (priceData.avgPrice >= this.basePointValue) {
 			this.chart.data[0].color = App.COLOR.UP;
 		} else {
 			this.chart.data[0].color = App.COLOR.DOWN;
 		}
 
 		this.chart.invalidateRawData();
+	};
+
+	UpDownChart.prototype.updateMaxValue = function(maxValue) {
+		this.valueAxis.max = maxValue;
+	};
+
+	UpDownChart.prototype.updateMinValue = function(minValue) {
+		this.valueAxis.min = minValue;
 	};
 
 	return UpDownChart;

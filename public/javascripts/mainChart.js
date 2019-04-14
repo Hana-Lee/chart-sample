@@ -11,7 +11,7 @@ App.MainChart = (function() {
 		this.makeMaxSeries();
 		this.makeMinSeries();
 		this.baseValueLine = this.makeBaseSeries();
-		this.resultValueLine = this.makeResultSeries();
+		this.makeBasePoint();
 		this.bullet = this.makeBullet();
 		this.baseLine = this.makeBaseLine(priceData);
 		this.setupEvent();
@@ -30,8 +30,14 @@ App.MainChart = (function() {
 		return this.mainChart;
 	};
 
+	MainChart.prototype.getMaxValue = function() {
+		return this.valueAxis.max;
+	};
+	MainChart.prototype.getMinValue = function() {
+		return this.valueAxis.min;
+	};
+
 	MainChart.prototype.updateResultLineData = function(value, basePointValue) {
-		console.log(this.resultLine);
 		this.resultLine.data[0].value = value;
 		this.resultLine.data[1].value = value;
 		if (value >= basePointValue) {
@@ -49,20 +55,22 @@ App.MainChart = (function() {
 		var chart = am4core.create(containerId, am4charts.XYChart);
 		chart.paddingLeft = 0;
 		chart.paddingRight = 0;
+		chart.paddingTop = 1;
+		chart.paddingBottom = 1;
 		chart.language.locale = am4lang_ko_KR;
 
-		chart.data = this.generateData(priceData.avgPrice);
+		chart.data = this.generateData(priceData);
 		return chart;
 	};
 
-	MainChart.prototype.generateData = function(initValue) {
+	MainChart.prototype.generateData = function(priceData) {
 		var result = [];
 		for (var i = 0; i < 120; i++) {
 			result.push({
 				point: i,
-				value: i === 0 ? initValue : null,
-				value1: null,
-				value2: null,
+				avgValue: i === 0 ? priceData.avgPrice : undefined,
+				maxValue: i === 0 ? priceData.maxValue : undefined,
+				minValue: i === 0 ? priceData.minValue : undefined,
 				townSize: 0,
 				startBaseTime: i,
 				endBaseTime: i,
@@ -101,7 +109,7 @@ App.MainChart = (function() {
 	MainChart.prototype.makeMaxSeries = function() {
 		var series = this.mainChart.series.push(new am4charts.LineSeries());
 		series.dataFields.categoryX = 'point';
-		series.dataFields.valueY = 'value1';
+		series.dataFields.valueY = 'binValue';
 		series.strokeWidth = 1;
 		series.stroke = am4core.color('#dfdfdf');
 		series.strokeOpacity = 0.3;
@@ -113,7 +121,7 @@ App.MainChart = (function() {
 	MainChart.prototype.makeMinSeries = function() {
 		var series = this.mainChart.series.push(new am4charts.LineSeries());
 		series.dataFields.categoryX = 'point';
-		series.dataFields.valueY = 'value2';
+		series.dataFields.valueY = 'idxValue';
 		series.strokeWidth = 1;
 		series.stroke = am4core.color('#dfdfdf');
 		series.strokeOpacity = 0.3;
@@ -125,7 +133,7 @@ App.MainChart = (function() {
 	MainChart.prototype.makeBaseSeries = function() {
 		var series = this.mainChart.series.push(new am4charts.LineSeries());
 		series.dataFields.categoryX = 'point';
-		series.dataFields.valueY = 'value';
+		series.dataFields.valueY = 'avgValue';
 		series.strokeWidth = 2;
 		series.tensionX = 0.8;
 		series.connect = false;
@@ -133,19 +141,8 @@ App.MainChart = (function() {
 		return series;
 	};
 
-	MainChart.prototype.makeResultSeries = function() {
-		var series = this.mainChart.series.push(new am4charts.LineSeries());
-		series.dataFields.categoryX = 'point';
-		series.dataFields.valueY = 'value3';
-		series.strokeWidth = 2;
-		series.tensionX = 0.8;
-		series.connect = false;
-		series.stroke = am4core.color('#32CD32');
-		return series;
-	};
-
 	MainChart.prototype.makeBasePoint = function() {
-		var bullet = this.resultValueLine.bullets.push(new am4charts.CircleBullet());
+		var bullet = this.baseValueLine.bullets.push(new am4charts.CircleBullet());
 		bullet.circle.fill = am4core.color(App.COLOR.UP);
 		bullet.circle.strokeWidth = 2;
 		bullet.circle.propertyFields.radius = 'townSize';
@@ -166,6 +163,8 @@ App.MainChart = (function() {
 		this.baseValueLine.events.on('validated', function() {
 			this.baseLine.data[0].value = this.valueAxis.max;
 			this.baseLine.data[1].value = this.valueAxis.min;
+			this.baseLine.invalidateRawData();
+
 			if (this.baseValueLine.dataItems.last.valueY) {
 				if (this.baseValueLine.dataItems.last.valueY >= this.leftBaseValue) {
 					this.bullet.fill = am4core.color(App.COLOR.UP);
@@ -174,21 +173,6 @@ App.MainChart = (function() {
 				}
 				this.bullet.stroke = this.bullet.fill;
 				this.bullet.moveTo(this.baseValueLine.dataItems.last.point);
-				this.bullet.validatePosition();
-			}
-		}.bind(this));
-
-		this.resultValueLine.events.on('validated', function() {
-			this.baseLine.data[0].value = this.valueAxis.max;
-			this.baseLine.data[1].value = this.valueAxis.min;
-			if (this.resultValueLine.dataItems.last.valueY) {
-				if (this.resultValueLine.dataItems.last.valueY >= this.baseValue) {
-					this.bullet.fill = am4core.color(App.COLOR.UP);
-				} else {
-					this.bullet.fill = am4core.color(App.COLOR.DOWN);
-				}
-				this.bullet.stroke = this.bullet.fill;
-				this.bullet.moveTo(this.resultValueLine.dataItems.last.point);
 				this.bullet.validatePosition();
 			}
 		}.bind(this));
@@ -205,7 +189,8 @@ App.MainChart = (function() {
 		}, {
 			point: App.main.getBasePoint(), value: priceData.minPrice,
 		}];
-
+		trend.defaultState.transitionDuration = 0;
+		trend.interpolationDuration = 0;
 		return trend;
 	};
 
@@ -216,7 +201,10 @@ App.MainChart = (function() {
 		resultBaseLine.strokeWidth = 2;
 		resultBaseLine.strokeOpacity = 0.5;
 		resultBaseLine.stroke = am4core.color('#dfdfdf');
-		resultBaseLine.data = [{ point: App.main.getBasePoint(), value: baseValue }, { point: 119, value: baseValue }];
+		resultBaseLine.data = [
+			{ point: App.main.getBasePoint(), value: baseValue },
+			{ point: App.main.getEndPoint(), value: baseValue },
+		];
 
 		var resultDynamicLine = this.mainChart.series.push(new am4charts.LineSeries());
 		resultDynamicLine.dataFields.valueY = 'value';
@@ -229,7 +217,7 @@ App.MainChart = (function() {
 		resultDynamicLine.strokeOpacity = 0.5;
 		resultDynamicLine.data = [
 			{ point: App.main.getBasePoint(), value: baseValue, baseValue: baseValue, color: App.COLOR.DOWN },
-			{ point: 119, value: baseValue, baseValue: baseValue, color: App.COLOR.DOWN },
+			{ point: App.main.getEndPoint(), value: baseValue, baseValue: baseValue, color: App.COLOR.DOWN },
 		];
 
 		this.resultLine = resultDynamicLine;

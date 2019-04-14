@@ -24,7 +24,7 @@ var springChartApp = (function() {
 			return this.mainChart === undefined;
 		},
 
-		addMainChart: function(mainChart) {
+		prepareMainChart: function(mainChart) {
 			this.mainChart = mainChart;
 		},
 
@@ -32,7 +32,7 @@ var springChartApp = (function() {
 			return this.mainChart;
 		},
 
-		addBaseChart: function(baseChart) {
+		prepareBaseChart: function(baseChart) {
 			this.baseChart = baseChart;
 		},
 
