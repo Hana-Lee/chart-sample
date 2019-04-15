@@ -112,7 +112,9 @@ App.main = (function() {
 			this.updateCurrentValueElem(priceData.avgPrice);
 
 			if (this.isLastCount()) {
-				this.gameOver(priceData);
+				setTimeout(function() {
+					this.gameOver(priceData);
+				}.bind(this), 1);
 			}
 
 			this.count++;
