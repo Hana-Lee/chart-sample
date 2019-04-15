@@ -64,11 +64,6 @@ App.main = (function() {
 				this.startPointBaseValue = priceData.avgPrice;
 			}
 
-			if (this.isLastCount()) {
-				this.gameOver(priceData);
-				return;
-			}
-
 			if (this.isBasePointCount()) {
 				this.endPointBaseValue = priceData.avgPrice;
 
@@ -115,6 +110,11 @@ App.main = (function() {
 			}
 
 			this.updateCurrentValueElem(priceData.avgPrice);
+
+			if (this.isLastCount()) {
+				this.gameOver(priceData);
+			}
+
 			this.count++;
 		},
 
@@ -125,7 +125,7 @@ App.main = (function() {
 				this.hideMainOverlay();
 				this.disposeAllChart();
 				this.showProgressImage();
-			}.bind(this), 30000);
+			}.bind(this), 29000);
 		},
 
 		resetState: function() {
@@ -169,7 +169,7 @@ App.main = (function() {
 		},
 
 		isLastCount: function() {
-			return this.count > this.endPoint;
+			return this.count === this.endPoint;
 		},
 
 		isBasePointCount: function() {
@@ -233,7 +233,12 @@ App.main = (function() {
 		},
 
 		hideBreakTimeOverlay: function() {
-			document.querySelector('#break_time_overlay').style.display = 'none';
+			var breakTimeOverlay = document.querySelector('#break_time_overlay');
+			breakTimeOverlay.style.display = 'none';
+			var imageElem = breakTimeOverlay.querySelector('.image');
+			imageElem.style.width = '100%';
+			var counterElem = breakTimeOverlay.querySelector('.label');
+			counterElem.textContent = '29초 후 시작합니다.';
 		},
 
 		disposeAllChart: function() {
@@ -261,19 +266,19 @@ App.main = (function() {
 				breakTimeOverlay.style.display = 'block';
 				var count = 1;
 				var imageInterval = setInterval(function() {
-					if (count === 31) {
+					if (count === 30) {
 						clearInterval(imageInterval);
 						this.breakTime = false;
 						return false;
 					}
 					var width = imageElem.style.width.replace('%', '');
-					if (count < 30) {
-						imageElem.style.width = Number(width) - 3.3 + '%';
+					if (count < 29) {
+						imageElem.style.width = Number(width) - 3.4 + '%';
 					} else {
 						imageElem.style.width = '0%';
 					}
-					var counter = counterElem.textContent.replace('초', '');
-					counter = (counter - 1) + '초';
+					var counter = counterElem.textContent.replace('초 후 시작합니다.', '');
+					counter = (counter - 1) + '초 후 시작합니다.';
 					counterElem.textContent = counter;
 					count++;
 				}.bind(this), 1000);

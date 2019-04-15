@@ -235,7 +235,7 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    background: url('../images/progress.png') no-repeat;
+    background: url('../images/tiny-progress.png') no-repeat;
     -webkit-transition: width 1s ease-in-out;
     -moz-transition: width 1s ease-in-out;
     -o-transition: width 1s ease-in-out;
@@ -248,6 +248,8 @@ body {
     left: 50%;
     transform: translate(-50%, 0px);
     -ms-transform: translate(-50%, 0%);
+    width: 100%;
+    text-align: center;
 }
 
 #main_chart_div, #base_chart_div, #result_chart_div {
