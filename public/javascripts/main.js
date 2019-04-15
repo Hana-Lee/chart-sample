@@ -42,6 +42,7 @@ App.main = (function() {
 
 			if (App.main.hasNotMainChart()) {
 				App.main.screenClear();
+				App.main.resetState();
 				App.main.prepareMainChart(priceData);
 				App.main.prepareBaseChart(priceData);
 			} else {
@@ -119,8 +120,6 @@ App.main = (function() {
 
 		gameOver: function(priceData) {
 			this.breakTime = true;
-			this.resetState();
-
 			this.showResultValueOverlay(priceData);
 			setTimeout(function() {
 				this.hideMainOverlay();
@@ -238,9 +237,6 @@ App.main = (function() {
 		},
 
 		disposeAllChart: function() {
-			console.log('main', this.mainChart);
-			console.log('main', this.baseChart);
-			console.log('main', this.resultChart);
 			if (this.mainChart) {
 				this.mainChart.getChart().dispose();
 			}
