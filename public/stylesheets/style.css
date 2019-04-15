@@ -74,16 +74,16 @@ body {
     transform: translate(-50%, -45%);
     -ms-transform: translate(-50%, -45%);
     color: white;
-    width: 275px;
+    width: 430px;
     display: none;
 }
 
 #main_overlay .mid table .label .title {
-    font-size: 1.5em;
+    font-size: 2.5em;
 }
 
 #main_overlay .mid table .label .value {
-    font-size: 2.2em;
+    font-size: 4.5em;
 }
 
 #main_overlay .top .title {
@@ -109,7 +109,7 @@ body {
 #main_overlay .mid .high_low_text {
     text-align: center;
     font-weight: bold;
-    font-size: 4em;
+    font-size: 6em;
     text-shadow: -3px 0 2px #1E3F5F, 0 3px 2px #1E3F5F, 3px 0 2px #1E3F5F, 0 -3px 2px #1E3F5F;
 }
 

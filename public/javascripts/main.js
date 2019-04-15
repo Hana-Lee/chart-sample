@@ -4,18 +4,15 @@ App.main = (function() {
 
 	return {
 		count: 0,
-		min: 0,
-		max: 0,
 		basePoint: 59,
 		startPointBaseValue: 0,
-		resultBaseValue: 0,
 		endPoint: 119,
 		endPointBaseValue: 0,
 		mainChart: undefined,
 		baseChart: undefined,
 		resultChart: undefined,
-		resultLine: undefined,
 		timeInterval: undefined,
+		breakTime: false,
 
 		start: function() {
 			// if (navigator.platform.toLowerCase() === 'win32') {
@@ -25,7 +22,7 @@ App.main = (function() {
 			// 	}
 			// }
 			var socket = io.connect(location.href);
-			socket.on('priceData', this.dataReceivedHandler);
+			socket.on('priceData', this.dataReceivedHandler.bind(this));
 			App.main.startTimer();
 		},
 
@@ -39,12 +36,26 @@ App.main = (function() {
 		 * @param priceData.ixPrice number
 		 */
 		dataReceivedHandler: function(priceData) {
+			if (App.main.isBreakTime()) {
+				return;
+			}
+
 			if (App.main.hasNotMainChart()) {
+				App.main.screenClear();
 				App.main.prepareMainChart(priceData);
 				App.main.prepareBaseChart(priceData);
 			} else {
 				App.main.updateData(priceData);
 			}
+		},
+
+		isBreakTime: function() {
+			return this.breakTime;
+		},
+
+		screenClear: function() {
+			this.hideMainOverlay();
+			this.hideBreakTimeOverlay();
 		},
 
 		updateData: function(priceData) {
@@ -59,9 +70,18 @@ App.main = (function() {
 
 			if (this.isBasePointCount()) {
 				this.endPointBaseValue = priceData.avgPrice;
-				this.showBaseValueOverlay(priceData);
-				this.addResultChart(priceData);
-				this.mainChart.makeResultLine(priceData.avgPrice);
+
+				setTimeout(function() {
+					this.showBaseValueOverlay(priceData);
+				}.bind(this), 1);
+
+				setTimeout(function() {
+					this.addResultChart(priceData);
+				}.bind(this), 1);
+
+				setTimeout(function() {
+					this.mainChart.makeResultLine(priceData.avgPrice);
+				}.bind(this), 1);
 			}
 
 			if (this.isResultAreaCount()) {
@@ -98,12 +118,21 @@ App.main = (function() {
 		},
 
 		gameOver: function(priceData) {
+			this.breakTime = true;
+			this.resetState();
+
 			this.showResultValueOverlay(priceData);
 			setTimeout(function() {
 				this.hideMainOverlay();
 				this.disposeAllChart();
 				this.showProgressImage();
-			}, 10000);
+			}.bind(this), 30000);
+		},
+
+		resetState: function() {
+			this.count = 0;
+			this.startPointBaseValue = 0;
+			this.endPointBaseValue = 0;
 		},
 
 		hasNotMainChart: function() {
@@ -158,13 +187,31 @@ App.main = (function() {
 
 		showBaseValueOverlay: function(priceData) {
 			this.showValueOverlay('#main_overlay .mid.base_value_group', priceData);
+			this.enableBaseValueOverlay();
 		},
 
 		showResultValueOverlay: function(priceData) {
 			this.showValueOverlay('#main_overlay .mid.result_value_group', priceData);
-			document.querySelector('#main_overlay .mid.base_value_group table .base .label').className += ' disable';
-			document.querySelector('#main_overlay .mid.base_value_group table .binance .label').className += ' disable';
-			document.querySelector('#main_overlay .mid.base_value_group table .idax .label').className += ' disable';
+			this.disableBaseValueOverlay();
+		},
+
+		disableBaseValueOverlay: function() {
+			if (document.querySelector('#main_overlay .mid.base_value_group table .base .label').className.indexOf('disable') === -1) {
+				document.querySelector('#main_overlay .mid.base_value_group table .base .label').className += ' disable';
+				document.querySelector('#main_overlay .mid.base_value_group table .binance .label').className += ' disable';
+				document.querySelector('#main_overlay .mid.base_value_group table .idax .label').className += ' disable';
+			}
+		},
+
+		enableBaseValueOverlay: function() {
+			document.querySelector('#main_overlay .mid.base_value_group table .base .label').className =
+				document.querySelector('#main_overlay .mid.base_value_group table .base .label').className.replace(' disable', '');
+
+			document.querySelector('#main_overlay .mid.base_value_group table .binance .label').className =
+				document.querySelector('#main_overlay .mid.base_value_group table .binance .label').className.replace(' disable', '');
+
+			document.querySelector('#main_overlay .mid.base_value_group table .idax .label').className =
+				document.querySelector('#main_overlay .mid.base_value_group table .idax .label').className.replace(' disable', '');
 		},
 
 		showValueOverlay: function(elemSelector, priceData) {
@@ -181,13 +228,30 @@ App.main = (function() {
 		},
 
 		hideMainOverlay: function() {
-			document.querySelector('#main_overlay .mid').style.display = 'none';
+			var midOverlays = document.querySelectorAll('#main_overlay .mid');
+			midOverlays[0].style.display = 'none';
+			midOverlays[1].style.display = 'none';
+		},
+
+		hideBreakTimeOverlay: function() {
+			document.querySelector('#break_time_overlay').style.display = 'none';
 		},
 
 		disposeAllChart: function() {
-			this.mainChart.getChart().dispose();
-			this.baseChart.getChart().dispose();
-			this.resultChart.getChart().dispose();
+			console.log('main', this.mainChart);
+			console.log('main', this.baseChart);
+			console.log('main', this.resultChart);
+			if (this.mainChart) {
+				this.mainChart.getChart().dispose();
+			}
+
+			if (this.baseChart) {
+				this.baseChart.getChart().dispose();
+			}
+
+			if (this.resultChart) {
+				this.resultChart.getChart().dispose();
+			}
 			this.mainChart = undefined;
 			this.baseChart = undefined;
 			this.resultChart = undefined;
@@ -203,6 +267,7 @@ App.main = (function() {
 				var imageInterval = setInterval(function() {
 					if (count === 31) {
 						clearInterval(imageInterval);
+						this.breakTime = false;
 						return false;
 					}
 					var width = imageElem.style.width.replace('%', '');
@@ -215,7 +280,7 @@ App.main = (function() {
 					counter = (counter - 1) + '초';
 					counterElem.textContent = counter;
 					count++;
-				}, 1000);
+				}.bind(this), 1000);
 			}
 		},
 
