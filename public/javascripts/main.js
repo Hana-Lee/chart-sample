@@ -53,7 +53,7 @@ App.main = (function() {
 			}
 
 			if (this.isLastCount()) {
-				this.showResultValueOverlay(priceData);
+				this.gameOver(priceData);
 				return;
 			}
 
@@ -83,18 +83,27 @@ App.main = (function() {
 			this.mainChart.addData(newData, true);
 
 			if (this.isResultAreaCount()) {
-				this.resultChart.setBasePointValue(priceData.avgPrice);
+				this.resultChart.setBasePointValue(this.endPointBaseValue);
 				this.resultChart.updateData(priceData);
 
 				this.baseChart.updateMaxValue(this.mainChart.getMaxValue());
 				this.baseChart.updateMinValue(this.mainChart.getMinValue());
 			} else {
-				this.baseChart.setBasePointValue(priceData.avgPrice);
+				this.baseChart.setBasePointValue(this.startPointBaseValue);
 				this.baseChart.updateData(priceData);
 			}
 
 			this.updateCurrentValueElem(priceData.avgPrice);
 			this.count++;
+		},
+
+		gameOver: function(priceData) {
+			this.showResultValueOverlay(priceData);
+			setTimeout(function() {
+				this.hideMainOverlay();
+				this.disposeAllChart();
+				this.showProgressImage();
+			}, 10000);
 		},
 
 		hasNotMainChart: function() {
@@ -132,11 +141,7 @@ App.main = (function() {
 		},
 
 		isLastCount: function() {
-			return this.count === this.endPoint;
-		},
-
-		updateResultValueElem: function(value) {
-			// document.querySelector('#result-value').textContent = value + '';
+			return this.count > this.endPoint;
 		},
 
 		isBasePointCount: function() {
@@ -164,7 +169,7 @@ App.main = (function() {
 
 		showValueOverlay: function(elemSelector, priceData) {
 			var overlayElem = document.querySelector(elemSelector);
-			if (overlayElem.style.display === '') {
+			if (overlayElem.style.display === '' || overlayElem.style.display === 'none') {
 				var binanceValueElem = overlayElem.querySelector('.binance .value');
 				var idaxValueElem = overlayElem.querySelector('.idax .value');
 				var resultValueElem = overlayElem.querySelector('.base .value');
@@ -172,6 +177,45 @@ App.main = (function() {
 				idaxValueElem.textContent = priceData.ixPrice.toFixed(2);
 				resultValueElem.textContent = priceData.avgPrice.toFixed(2);
 				overlayElem.style.display = 'block';
+			}
+		},
+
+		hideMainOverlay: function() {
+			document.querySelector('#main_overlay .mid').style.display = 'none';
+		},
+
+		disposeAllChart: function() {
+			this.mainChart.getChart().dispose();
+			this.baseChart.getChart().dispose();
+			this.resultChart.getChart().dispose();
+			this.mainChart = undefined;
+			this.baseChart = undefined;
+			this.resultChart = undefined;
+		},
+
+		showProgressImage: function() {
+			var breakTimeOverlay = document.querySelector('#break_time_overlay');
+			var imageElem = breakTimeOverlay.querySelector('.image');
+			var counterElem = breakTimeOverlay.querySelector('.label');
+			if (breakTimeOverlay.style.display === '' || breakTimeOverlay.style.display === 'none') {
+				breakTimeOverlay.style.display = 'block';
+				var count = 1;
+				var imageInterval = setInterval(function() {
+					if (count === 31) {
+						clearInterval(imageInterval);
+						return false;
+					}
+					var width = imageElem.style.width.replace('%', '');
+					if (count < 30) {
+						imageElem.style.width = Number(width) - 3.3 + '%';
+					} else {
+						imageElem.style.width = '0%';
+					}
+					var counter = counterElem.textContent.replace('초', '');
+					counter = (counter - 1) + '초';
+					counterElem.textContent = counter;
+					count++;
+				}, 1000);
 			}
 		},
 

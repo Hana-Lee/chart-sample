@@ -110,7 +110,7 @@ body {
     text-align: center;
     font-weight: bold;
     font-size: 4em;
-    text-shadow : -3px 0 2px #1E3F5F, 0 3px 2px #1E3F5F, 3px 0 2px #1E3F5F, 0 -3px 2px #1E3F5F;
+    text-shadow: -3px 0 2px #1E3F5F, 0 3px 2px #1E3F5F, 3px 0 2px #1E3F5F, 0 -3px 2px #1E3F5F;
 }
 
 #main_overlay .mid .high_low_text.high,
@@ -178,7 +178,8 @@ body {
 }
 
 #main_overlay .mid table .binance .label .value,
-#main_overlay .mid table .idax .label .value {
+#main_overlay .mid table .idax .label .value,
+#break_time_overlay .overlay_text .label {
     color: #CCE1FA;
 }
 
@@ -196,11 +197,11 @@ body {
     border-top: 1px solid #0A1521;
 }
 
-#main_overlay .mid table .label.disable .value{
+#main_overlay .mid table .label.disable .value {
     color: #8BA2B9 !important;
 }
 
-#break-time-overlay {
+#break_time_overlay {
     position: fixed;
     width: 100%;
     height: 100%;
@@ -214,7 +215,7 @@ body {
     display: none;
 }
 
-#break-time-overlay .overlay-text {
+#break_time_overlay .overlay_text {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -222,10 +223,31 @@ body {
     color: white;
     transform: translate(-50%, -50%);
     -ms-transform: translate(-50%, -50%);
+    width: 611px;
+    height: 264px;
 }
 
-#break-time-overlay .overlay {
+#break_time_overlay .overlay {
     color: #dfdfdf;
+}
+
+#break_time_overlay .overlay_text .image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: url('../images/progress.png') no-repeat;
+    -webkit-transition: width 1s ease-in-out;
+    -moz-transition: width 1s ease-in-out;
+    -o-transition: width 1s ease-in-out;
+    transition: width 1s ease-in-out;
+}
+
+#break_time_overlay .overlay_text .label {
+    position: absolute;
+    top: 165px;
+    left: 50%;
+    transform: translate(-50%, 0px);
+    -ms-transform: translate(-50%, 0%);
 }
 
 #main_chart_div, #base_chart_div, #result_chart_div {

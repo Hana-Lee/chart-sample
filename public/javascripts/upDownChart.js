@@ -78,5 +78,9 @@ App.UpDownChart = (function() {
 		this.valueAxis.min = minValue;
 	};
 
+	UpDownChart.prototype.getChart = function() {
+		return this.chart;
+	};
+
 	return UpDownChart;
 }());
