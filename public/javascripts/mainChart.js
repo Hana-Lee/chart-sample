@@ -50,7 +50,7 @@ App.MainChart = (function() {
 
 	MainChart.prototype.generateData = function(priceData) {
 		var result = [];
-		for (var i = 0; i < 120; i++) {
+		for (var i = 0; i <= App.main.getEndPoint(); i++) {
 			result.push({
 				point: i,
 				avgValue: i === 0 ? priceData.avgPrice : undefined,
@@ -96,8 +96,8 @@ App.MainChart = (function() {
 		series.dataFields.categoryX = 'point';
 		series.dataFields.valueY = 'binValue';
 		series.strokeWidth = 1;
-		series.stroke = am4core.color('#66363a');
-		series.strokeOpacity = 0.3;
+		series.stroke = am4core.color('#98130E');
+		series.strokeOpacity = 0.6;
 		series.tensionX = 0.8;
 		series.connect = false;
 		return series;
@@ -108,8 +108,8 @@ App.MainChart = (function() {
 		series.dataFields.categoryX = 'point';
 		series.dataFields.valueY = 'idxValue';
 		series.strokeWidth = 1;
-		series.stroke = am4core.color('#2a4f66');
-		series.strokeOpacity = 0.3;
+		series.stroke = am4core.color('#11469B');
+		series.strokeOpacity = 0.6;
 		series.tensionX = 0.8;
 		series.connect = false;
 		return series;

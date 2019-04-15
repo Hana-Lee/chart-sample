@@ -6,11 +6,11 @@ App.main = (function() {
 		count: 0,
 		min: 0,
 		max: 0,
-		basePoint: 60,
-		startBaseValue: 0,
+		basePoint: 59,
+		startPointBaseValue: 0,
 		resultBaseValue: 0,
-		endPoint: 120,
-		basePointValue: 0,
+		endPoint: 119,
+		endPointBaseValue: 0,
 		mainChart: undefined,
 		baseChart: undefined,
 		resultChart: undefined,
@@ -48,22 +48,24 @@ App.main = (function() {
 		},
 
 		updateData: function(priceData) {
+			if (this.count === 0) {
+				this.startPointBaseValue = priceData.avgPrice;
+			}
+
 			if (this.isLastCount()) {
-				this.updateResultValueElem(priceData.avgPrice);
 				this.showResultValueOverlay(priceData);
 				return;
 			}
 
 			if (this.isBasePointCount()) {
-				this.basePointValue = priceData.avgPrice;
+				this.endPointBaseValue = priceData.avgPrice;
 				this.showBaseValueOverlay(priceData);
-				this.updateBaseValueElem(priceData.avgPrice);
 				this.addResultChart(priceData);
 				this.mainChart.makeResultLine(priceData.avgPrice);
 			}
 
 			if (this.isResultAreaCount()) {
-				this.mainChart.updateResultLineData(priceData.avgPrice, this.basePointValue);
+				this.mainChart.updateResultLineData(priceData.avgPrice, this.endPointBaseValue);
 			}
 
 			var newData = {
@@ -74,8 +76,8 @@ App.main = (function() {
 				idxValue: priceData.ixPrice,
 				startBaseTime: this.count,
 				endBaseTime: this.count,
-				startBaseValue: this.startBaseValue,
-				endBaseValue: this.basePointValue,
+				startPointBaseValue: this.startPointBaseValue,
+				endBaseValue: this.endPointBaseValue,
 			};
 
 			this.mainChart.addData(newData, true);
@@ -121,7 +123,7 @@ App.main = (function() {
 
 		startTimer: function() {
 			this.timeInterval = setInterval(function() {
-				// document.querySelector('#current-time').textContent = moment().format('HH:mm:ss');
+				document.querySelector('#main_overlay .current_time .value').textContent = moment().format('HH:mm:ss');
 			}, 1000);
 		},
 
@@ -137,16 +139,12 @@ App.main = (function() {
 			// document.querySelector('#result-value').textContent = value + '';
 		},
 
-		updateBaseValueElem: function(value) {
-			// document.querySelector('#base-value').textContent = value + '';
-		},
-
 		isBasePointCount: function() {
 			return this.count === this.basePoint;
 		},
 
 		isResultAreaCount: function() {
-			return this.count >= this.basePoint;
+			return this.count > this.basePoint;
 		},
 
 		addResultChart: function(priceData) {
@@ -154,11 +152,14 @@ App.main = (function() {
 		},
 
 		showBaseValueOverlay: function(priceData) {
-			// this.showValueOverlay('#base_value_overlay', priceData);
+			this.showValueOverlay('#main_overlay .mid.base_value_group', priceData);
 		},
 
 		showResultValueOverlay: function(priceData) {
-			// this.showValueOverlay('#result_value_overlay', priceData);
+			this.showValueOverlay('#main_overlay .mid.result_value_group', priceData);
+			document.querySelector('#main_overlay .mid.base_value_group table .base .label').className += ' disable';
+			document.querySelector('#main_overlay .mid.base_value_group table .binance .label').className += ' disable';
+			document.querySelector('#main_overlay .mid.base_value_group table .idax .label').className += ' disable';
 		},
 
 		showValueOverlay: function(elemSelector, priceData) {
@@ -175,7 +176,32 @@ App.main = (function() {
 		},
 
 		updateCurrentValueElem: function(value) {
-			// document.querySelector('#current-value').textContent = value.toFixed(2);
+			var priceElem = document.querySelector('#main_overlay .current_price');
+			priceElem.querySelector('.value').textContent = value.toFixed(2);
+
+			var upAndDownIcon = App.ICON.UP;
+			var upAndDownClassName = 'up';
+			if (this.endPointBaseValue > 0) {
+				if (this.endPointBaseValue > value) {
+					upAndDownIcon = App.ICON.DOWN;
+					upAndDownClassName = 'down';
+				}
+			} else {
+				if (this.startPointBaseValue > value) {
+					upAndDownIcon = App.ICON.DOWN;
+					upAndDownClassName = 'down';
+				}
+			}
+
+			this.removeAllUpAndDownClassName(priceElem);
+
+			priceElem.querySelector('.up_down_indicator').textContent = upAndDownIcon;
+			priceElem.querySelector('.up_down_indicator').className += ' ' + upAndDownClassName;
+		},
+
+		removeAllUpAndDownClassName: function(parentElem) {
+			parentElem.querySelector('.up_down_indicator').className =
+				parentElem.querySelector('.up_down_indicator').className.replace(/\sup|\sdown/g, '');
 		},
 
 		updateSideChartMinMaxValue: function() {

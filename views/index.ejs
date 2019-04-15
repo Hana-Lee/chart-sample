@@ -19,7 +19,7 @@
 </head>
 <body>
 <div id="chart-warp">
-    <a id="amcharts-logo" href="https://www.amcharts.com/" id="logo" rel="home">amCharts</a>
+    <a id="amcharts-logo" href="https://www.amcharts.com/" rel="home">amCharts</a>
     <div id="chartdiv">
     </div>
 </div>
@@ -32,58 +32,95 @@
         </div>
     </div>
 </div>
-<div id="current_time_overlay">
-    <span style="color:#a0b8d1">현재시간:</span>
-    <span>00:02:16</span>
-</div>
-<div id="current_price_overlay">
-    <div class="price_group" style="display: inline-block">
-    <span style="color:#a0b8d1">현재가격:</span>
-    <span>3903.22</span>
+
+
+<div id="main_overlay" class="d-flex">
+    <div class="col-6 p-0">
+        <div class="top current_time">
+            <span class="title">현재시간:</span>
+            <span class="value">00:00:00</span>
+        </div>
+        <div class="mid base_value_group">
+            <div style="height:103px;"></div>
+            <table>
+                <tr class="base">
+                    <td>
+                        <div class="label">
+                            <span class="title">기준(평균)</span><span class="value">5009.25</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="binance">
+                    <td>
+                        <div class="label">
+                            <span class="title">바이낸스</span><span class="value">5009.25</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="idax">
+                    <td>
+                        <div class="label">
+                            <span class="title">IDAX</span><span class="value">5009.25</span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="time_label start_time">
+            <span>01:00</span>
+        </div>
+        <div class="time_label base_time">
+            <span>02:00</span>
+        </div>
     </div>
-    <span class="up_down_indicator">▲</span>
+    <div class="col-6 p-0">
+        <div class="top current_price">
+            <span class="title">현재가격:</span>
+            <span class="value">3903.22</span>
+            <span class="up_down_indicator up">▲</span>
+        </div>
+        <div class="mid result_value_group">
+            <div class="high_low_text up">HIGH</div>
+            <table>
+                <tr class="base">
+                    <td>
+                        <div class="label">
+                            <span class="title">결과(평균)</span><span class="value">5009.25</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="binance">
+                    <td>
+                        <div class="label">
+                            <span class="title">바이낸스</span><span class="value">5009.25</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="idax">
+                    <td>
+                        <div class="label">
+                            <span class="title">IDAX</span><span class="value">5009.25</span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="time_label end_time">
+            <span>03:00</span>
+        </div>
+    </div>
 </div>
 
-<div id="start_time_overlay" style="position:absolute;bottom:1%;left:5%;color:#cce1fa;font-size:1.5em;">
-    01:00
-</div>
-<div id="start_time_overlay" style="position:absolute;bottom:1%;left:49%;color:#cce1fa;font-size:1.5em;">
-    02:00
-</div>
-<div id="start_time_overlay" style="position:absolute;bottom:1%;right:5%;color:#cce1fa;font-size:1.5em;">
-    03:00
-</div>
-
-<div id="overlay" class="overlay">
-    <div id="overlay-text">스페셜 매칭 시작!!!!!</div>
-</div>
-<div id="base_value_overlay" class="overlay">
-    <div style="height:87px;"></div>
-    <table>
-        <tr class="base">
-            <td><div style="background: rgba(24, 36, 49, 0.5);padding:5px 20px;border-radius:25px;"><span>기준(평균)</span><span class="value">5009.25</span></div></td>
-        </tr>
-        <tr class="binance">
-            <td><div style="background: rgba(24, 36, 49, 0.5);padding:5px 20px;border-radius:25px;"><span>바이낸스</span><span class="value">5009.25</span></div></td>
-        </tr>
-        <tr class="idax">
-            <td><div style="background: rgba(24, 36, 49, 0.5);padding:5px 20px;border-radius:25px;"><span>IDAX</span><span class="value">5009.25</span></div></td>
-        </tr>
-    </table>
-</div>
-<div id="result_value_overlay" class="overlay">
-    <div style="color:red;text-align:center;font-weight:bold;font-size:2.1em;">HIGH</div>
-    <table>
-        <tr class="base">
-            <td><div style="background: rgba(24, 36, 49, 0.5);padding:5px 20px;border-radius:25px;"><span>결과(평균)</span><span class="value">5009.25</span></div></td>
-        </tr>
-        <tr class="binance">
-            <td><div style="background: rgba(24, 36, 49, 0.5);padding:5px 20px;border-radius:25px;"><span>바이낸스</span><span class="value">5009.25</span></div></td>
-        </tr>
-        <tr class="idax">
-            <td><div style="background: rgba(24, 36, 49, 0.5);padding:5px 20px;border-radius:25px;"><span>IDAX</span><span class="value">5009.25</span></div></td>
-        </tr>
-    </table>
+<div id="break-time-overlay" class="overlay">
+    <div class="overlay-text">
+        <div>START!!!</div>
+        <div>48초전</div>
+        <div class="progress">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75"
+                 aria-valuemin="0" aria-valuemax="100" style="width: 75%">45초
+            </div>
+        </div>
+    </div>
 </div>
 
 <script src="https://www.amcharts.com/lib/4/core.js"></script>
