@@ -193,6 +193,7 @@ App.main = (function() {
 
 		showResultValueOverlay: function(priceData) {
 			this.showValueOverlay('#main_overlay .mid.result_value_group', priceData);
+			this.updateHighAndLowLabel(priceData);
 			this.disableBaseValueOverlay();
 		},
 
@@ -213,6 +214,19 @@ App.main = (function() {
 
 			document.querySelector('#main_overlay .mid.base_value_group table .idax .label').className =
 				document.querySelector('#main_overlay .mid.base_value_group table .idax .label').className.replace(' disable', '');
+		},
+
+		updateHighAndLowLabel: function(priceData) {
+			var highAndLowLabel = 'HIGH';
+			var highAndLowClassName = ' up';
+			if (this.endPointBaseValue > priceData.avgPrice) {
+				highAndLowLabel = 'LOW';
+				highAndLowClassName = ' down';
+			}
+			var highAndLowElem = document.querySelector('#main_overlay .result_value_group .high_low_text');
+			highAndLowElem.textContent = highAndLowLabel;
+			highAndLowElem.className = highAndLowElem.className.replace(/\sup|\sdown/, '');
+			highAndLowElem.className += highAndLowClassName;
 		},
 
 		showValueOverlay: function(elemSelector, priceData) {
