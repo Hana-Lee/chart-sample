@@ -203,6 +203,7 @@ let intervalList = [];
 function sendData(socket) {
 	socketList.push(socket);
 	intervalList.push(setInterval(function() {
+		console.log('dataobj max', dataObj.startMaxPrice);
 		const data = {
 			state: dataObj.state,
 			biPrice: dataObj.biPrice,

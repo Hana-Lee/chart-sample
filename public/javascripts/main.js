@@ -4,7 +4,7 @@ App.main = (function() {
 
 	return {
 		count: 0,
-		basePoint: 59,
+		basePoint: 58,
 		startPointBaseValue: 0,
 		endPoint: 119,
 		endPointBaseValue: 0,
@@ -24,6 +24,10 @@ App.main = (function() {
 			// }
 			var socket = io.connect(location.href);
 			socket.on('priceData', this.dataReceivedHandler.bind(this));
+			// var item = localStorage.getItem('lhn');
+			// item = JSON.parse(item);
+			// item.state = 2;
+			// this.dataReceivedHandler(item);
 			App.main.startTimer();
 		},
 
@@ -36,26 +40,31 @@ App.main = (function() {
 		 * @param priceData.biPrice number
 		 * @param priceData.ixPrice number
 		 * @param priceData.avgPriceList number[]
+		 * @param priceData.biPriceList number[]
+		 * @param priceData.ixPriceList number[]
 		 * @param priceData.startCheck number
+		 * @param priceData.startMinPrice number
+		 * @param priceData.startMaxPrice number
 		 * @param priceData.state number NONE, START, OPEN, RESULT
 		 */
 		dataReceivedHandler: function(priceData) {
 			this.currentState = priceData.state;
 
-			if (this.currentState === App.BIN_PROC.NONE) {
+			console.log('price data', priceData);
+			console.log('start check', priceData.startCheck, ':', priceData.startCheck / 1000);
+			console.log('state', priceData.state, 'max', priceData.startMinPrice);
+
+			if (this.currentState === App.BIN_PROC.NONE || !priceData.avgPrice) {
 				return;
 			}
 			// if (App.main.isBreakTime()) {
 			// 	return;
 			// }
 
-			console.log('price data', priceData);
-			console.log('start check', priceData.startCheck, ':', priceData.startCheck / 1000);
-			console.log('state', priceData.state);
-
 			var breakTimeLeft = Math.floor(priceData.startCheck / 1000) - 120;
 			console.log('breakTimeLeft', breakTimeLeft, breakTimeLeft>=30);
 			if (priceData.state === App.BIN_PROC.RESULT) {
+				localStorage.setItem('lhn', JSON.stringify(priceData));
 				if (breakTimeLeft >= 30) {
 					this.showProgressImage(breakTimeLeft);
 				} else {
@@ -76,14 +85,17 @@ App.main = (function() {
 				if (this.count > 0 && this.startPointBaseValue === 0) {
 					this.startPointBaseValue = priceData.avgPriceList[0];
 					this.baseChart.setBasePointValue(this.startPointBaseValue);
-				} else if (this.count >= this.basePoint && this.endPointBaseValue === 0) {
+				}
+				if (this.count >= this.basePoint && this.endPointBaseValue === 0) {
+					console.log('priceData.avgPriceList[this.basePoint]', priceData.avgPriceList[this.basePoint]);
 					this.endPointBaseValue = priceData.avgPriceList[this.basePoint];
 				}
 
 				if (this.count > this.basePoint) {
-					this.showBaseValueOverlay(priceData);
+					this.showBaseValueOverlay({ixPrice:priceData.ixPriceList[this.basePoint], biPrice: priceData.biPriceList[this.basePoint], avgPrice: priceData.avgPriceList[this.basePoint]});
 					App.main.prepareResultChart(priceData);
 					this.resultChart.setBasePointValue(this.endPointBaseValue);
+					console.log('this.endPointBaseValue', this.endPointBaseValue);
 					this.mainChart.makeResultLine(this.endPointBaseValue);
 				}
 			} else {

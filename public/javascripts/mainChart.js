@@ -91,7 +91,7 @@ App.MainChart = (function() {
 		return categoryAxis;
 	};
 
-	MainChart.prototype.makeValueAxis = function() {
+	MainChart.prototype.makeValueAxis = function(priceData) {
 		var valueAxis = this.mainChart.yAxes.push(new am4charts.ValueAxis());
 		valueAxis.renderer.inside = true;
 		valueAxis.renderer.labels.template.disabled = true;

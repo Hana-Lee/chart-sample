@@ -37,6 +37,7 @@ const dataObj = {
 	openTime: [], startCheck: 0,
 	idax: [], binance: [],
 	av: [],
+	maxPrice: 0, minPrice: 0,
 	startMaxPrice: 0,
 	startMinPrice: 0,
 	openMaxPrice: 0,
@@ -47,6 +48,8 @@ const dataObj = {
 	ixPriceList: [],
 	biPriceList: [],
 	avgPriceList: [],
+	startBaseValue: 0,
+	resultBaseValue: 0,
 };
 let serverTimes = null;
 let diff = 0;
@@ -131,16 +134,18 @@ const watchProc = async function() {
 			dataObj.isOpen = false;
 			if (dataObj.ixPriceList.length > 0) {
 				dataObj.openTime = [];
-				dataObj.startMaxPrice= 0;
-				dataObj.startMinPrice= 0;
-				dataObj.openMaxPrice= 0;
-				dataObj.openMinPrice= 0;
-				dataObj.ixPrice= 0;
-				dataObj.biPrice= 0;
-				dataObj.avgPrice= 0;
-				dataObj.ixPriceList= [];
-				dataObj.biPriceList= [];
-				dataObj.avgPriceList= [];
+				dataObj.startMaxPrice = 0;
+				dataObj.startMinPrice = 0;
+				dataObj.openMaxPrice = 0;
+				dataObj.openMinPrice = 0;
+				dataObj.ixPrice = 0;
+				dataObj.biPrice = 0;
+				dataObj.avgPrice = 0;
+				dataObj.ixPriceList = [];
+				dataObj.biPriceList = [];
+				dataObj.avgPriceList = [];
+				dataObj.startBaseValue = 0;
+				dataObj.resultBaseValue = 0;
 			}
 		} else {
 			console.log("next waiting")
@@ -155,10 +160,10 @@ const watchProc = async function() {
 
 			const max = (retGet.binance + 1.5);
 			const min = (retGet.idax - 1.5);
-			if (dataObj.startMinPrice < max) {
-				dataObj.startMinPrice = max;
+			if (dataObj.startMaxPrice < max) {
+				dataObj.startMaxPrice = max;
 			} else if (dataObj.startMaxPrice < min) {
-				dataObj.startMinPrice = min;
+				dataObj.startMaxPrice = min;
 			}
 			if (dataObj.startMinPrice > min) {
 				dataObj.startMinPrice = min;
@@ -166,9 +171,9 @@ const watchProc = async function() {
 				dataObj.startMinPrice = max;
 			}
 
-			dataObj.ixPrice= retGet.idax;
-			dataObj.biPrice= retGet.binance;
-			dataObj.avgPrice= retGet.av;
+			dataObj.ixPrice = retGet.idax;
+			dataObj.biPrice = retGet.binance;
+			dataObj.avgPrice = retGet.av;
 			dataObj.resultBaseValue = retGet.av;
 			dataObj.ixPriceList.push(retGet.idax);
 			dataObj.biPriceList.push(retGet.binance);
@@ -198,9 +203,9 @@ const watchProc = async function() {
 				dataObj.openMinPrice = max;
 			}
 
-			dataObj.ixPrice= retGet.idax;
-			dataObj.biPrice= retGet.binance;
-			dataObj.avgPrice= retGet.av;
+			dataObj.ixPrice = retGet.idax;
+			dataObj.biPrice = retGet.binance;
+			dataObj.avgPrice = retGet.av;
 			dataObj.ixPriceList.push(retGet.idax);
 			dataObj.biPriceList.push(retGet.binance);
 			dataObj.avgPriceList.push(retGet.av);
@@ -218,16 +223,18 @@ const watchProc = async function() {
 			dataObj.gameKey = gameKey;
 
 			if (dataObj.ixPriceList.length > 0) {
-				dataObj.startMaxPrice= 0;
-				dataObj.startMinPrice= 0;
-				dataObj.openMaxPrice= 0;
-				dataObj.openMinPrice= 0;
-				dataObj.ixPrice= 0;
-				dataObj.biPrice= 0;
-				dataObj.avgPrice= 0;
-				dataObj.ixPriceList= [];
-				dataObj.biPriceList= [];
-				dataObj.avgPriceList= [];
+				dataObj.startMaxPrice = 0;
+				dataObj.startMinPrice = 0;
+				dataObj.openMaxPrice = 0;
+				dataObj.openMinPrice = 0;
+				dataObj.ixPrice = 0;
+				dataObj.biPrice = 0;
+				dataObj.avgPrice = 0;
+				dataObj.ixPriceList = [];
+				dataObj.biPriceList = [];
+				dataObj.avgPriceList = [];
+				dataObj.startBaseValue = 0;
+				dataObj.resultBaseValue = 0;
 			}
 			console.log('RESULT');
 		} else {
@@ -265,6 +272,14 @@ const getAllPrice = async function() {
 
 				const minPrice = ixPrice - 1.5;
 				const maxPrice = biPrice + 1.5;
+
+				if (dataObj.minPrice === 0) {
+					dataObj.minPrice = minPrice;
+				}
+				if (dataObj.maxPrice === 0) {
+					dataObj.maxPrice = maxPrice;
+				}
+
 				if (dataObj.minPrice > minPrice) {
 					dataObj.minPrice = minPrice;
 				} else if (dataObj.minPrice > maxPrice) {
@@ -283,6 +298,7 @@ const getAllPrice = async function() {
 					dataObj.openMaxPrice = dataObj.maxPrice;
 					dataObj.openMinPrice = dataObj.minPrice;
 				}
+				console.log(dataObj.startMaxPrice);
 			}
 		});
 	}
