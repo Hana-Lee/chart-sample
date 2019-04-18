@@ -274,10 +274,10 @@ const getAllPrice = async function() {
 				const maxPrice = biPrice + 1.5;
 
 				if (dataObj.minPrice === 0) {
-					dataObj.minPrice = minPrice;
+					dataObj.minPrice = minPrice > maxPrice ? maxPrice : minPrice;
 				}
 				if (dataObj.maxPrice === 0) {
-					dataObj.maxPrice = maxPrice;
+					dataObj.maxPrice = maxPrice > minPrice ? maxPrice : minPrice;
 				}
 
 				if (dataObj.minPrice > minPrice) {
