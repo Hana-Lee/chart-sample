@@ -1,17 +1,13 @@
 App.UpDownChart = (function() {
 	'use strict';
 
-	var UpDownChart = function(containerId, priceData) {
+	var UpDownChart = function(containerId, priceData, position) {
 		this.basePointValue = 0;
+		this.position = position;
 
 		this.chart = am4core.create(containerId, am4charts.XYChart);
 		this.chart.hiddenState.properties.opacity = 0; // this makes initial fade in effect
-		this.chart.data = [{
-			'base': 'One',
-			'value': priceData.avgPrice,
-			baseValue: priceData.avgPrice,
-			color: App.COLOR.UP,
-		}];
+		this.chart.data = this.generateData(priceData);
 		this.chart.responsive.enabled = false;
 		this.chart.paddingLeft = 0;
 		this.chart.paddingRight = 0;
@@ -33,8 +29,13 @@ App.UpDownChart = (function() {
 		this.valueAxis.cursorTooltipEnabled = false;
 		this.valueAxis.strictMinMax = true;
 
-		this.valueAxis.min = priceData.minPrice;
-		this.valueAxis.max = priceData.maxPrice;
+		if (this.position === 'left') {
+			this.valueAxis.min = priceData.startMinPrice;
+			this.valueAxis.max = priceData.startMaxPrice;
+		} else {
+			this.valueAxis.min = priceData.openMinPrice;
+			this.valueAxis.max = priceData.openMaxPrice;
+		}
 
 		this.series = this.chart.series.push(new am4charts.ColumnSeries());
 		this.series.dataFields.categoryX = 'base';
@@ -52,6 +53,32 @@ App.UpDownChart = (function() {
 		}.bind(this));
 	};
 
+	UpDownChart.prototype.generateData = function(priceData) {
+		var value, baseValue;
+
+		if (this.position === 'left') {
+			baseValue = priceData.startBaseValue;
+			if (priceData.avgPriceList.length <= App.main.getBasePoint()) {
+				value = priceData.avgPrice;
+			} else {
+				value = priceData.avgPriceList[App.main.getBasePoint()];
+			}
+		} else {
+			baseValue = priceData.resultBaseValue;
+			value = priceData.avgPrice;
+		}
+
+		console.log('base value', baseValue);
+		console.log('value', value);
+
+		return [{
+			base: 'One',
+			value: value,
+			baseValue: baseValue,
+			color: (value > baseValue ? App.COLOR.UP : App.COLOR.DOWN),
+		}];
+	};
+
 	UpDownChart.prototype.setBasePointValue = function(basePointValue) {
 		if (this.basePointValue <= 0) {
 			this.basePointValue = basePointValue;
@@ -60,8 +87,8 @@ App.UpDownChart = (function() {
 
 	UpDownChart.prototype.updateData = function(priceData) {
 		this.chart.data[0].value = priceData.avgPrice;
-		this.chart.data[0].baseValue = this.basePointValue;
-		if (priceData.avgPrice >= this.basePointValue) {
+		// this.chart.data[0].baseValue = this.basePointValue;
+		if (priceData.avgPrice >= this.chart.data[0].baseValue) {
 			this.chart.data[0].color = App.COLOR.UP;
 		} else {
 			this.chart.data[0].color = App.COLOR.DOWN;

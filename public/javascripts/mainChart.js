@@ -51,12 +51,22 @@ App.MainChart = (function() {
 	MainChart.prototype.generateData = function(priceData) {
 		var result = [];
 		for (var i = 0; i <= App.main.getEndPoint(); i++) {
+			var avgValue = (i === 0 ? 0 : undefined);
+			var binValue = (i === 0 ? 0 : undefined);
+			var idxValue = (i === 0 ? 0 : undefined);
+			if (priceData.avgPriceList.length > 0) {
+				if (priceData.avgPriceList[i]) {
+					avgValue = priceData.avgPriceList[i];
+					binValue = priceData.biPriceList[i];
+					idxValue = priceData.ixPriceList[i];
+				}
+			}
 			result.push({
 				point: i,
-				avgValue: i === 0 ? priceData.avgPrice : undefined,
-				maxValue: i === 0 ? priceData.maxValue : undefined,
-				minValue: i === 0 ? priceData.minValue : undefined,
-				townSize: 0,
+				avgValue: avgValue,
+				binValue: binValue,
+				idxValue: idxValue,
+				townSize: (i === App.main.getBasePoint() ? 7 : 0),
 				startBaseTime: i,
 				endBaseTime: i,
 				startBaseValue: null,
@@ -95,11 +105,12 @@ App.MainChart = (function() {
 		var series = this.mainChart.series.push(new am4charts.LineSeries());
 		series.dataFields.categoryX = 'point';
 		series.dataFields.valueY = 'binValue';
-		series.strokeWidth = 1;
-		series.stroke = am4core.color('#98130E');
+		series.strokeWidth = 2;
+		series.stroke = am4core.color('#FF4E4E');
 		series.strokeOpacity = 0.6;
 		series.tensionX = 0.8;
 		series.connect = false;
+
 		return series;
 	};
 
@@ -107,11 +118,12 @@ App.MainChart = (function() {
 		var series = this.mainChart.series.push(new am4charts.LineSeries());
 		series.dataFields.categoryX = 'point';
 		series.dataFields.valueY = 'idxValue';
-		series.strokeWidth = 1;
-		series.stroke = am4core.color('#11469B');
+		series.strokeWidth = 2;
+		series.stroke = am4core.color('#3894FF');
 		series.strokeOpacity = 0.6;
 		series.tensionX = 0.8;
 		series.connect = false;
+
 		return series;
 	};
 
@@ -119,10 +131,11 @@ App.MainChart = (function() {
 		var series = this.mainChart.series.push(new am4charts.LineSeries());
 		series.dataFields.categoryX = 'point';
 		series.dataFields.valueY = 'avgValue';
-		series.strokeWidth = 2;
+		series.strokeWidth = 4;
 		series.tensionX = 0.8;
 		series.connect = false;
 		series.stroke = am4core.color('#ffd524');
+
 		return series;
 	};
 

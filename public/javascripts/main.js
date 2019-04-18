@@ -13,6 +13,7 @@ App.main = (function() {
 		resultChart: undefined,
 		timeInterval: undefined,
 		breakTime: false,
+		currentState: App.BIN_PROC.NONE,
 
 		start: function() {
 			// if (navigator.platform.toLowerCase() === 'win32') {
@@ -34,9 +35,34 @@ App.main = (function() {
 		 * @param priceData.minPrice number
 		 * @param priceData.biPrice number
 		 * @param priceData.ixPrice number
+		 * @param priceData.avgPriceList number[]
+		 * @param priceData.startCheck number
+		 * @param priceData.state number NONE, START, OPEN, RESULT
 		 */
 		dataReceivedHandler: function(priceData) {
-			if (App.main.isBreakTime()) {
+			this.currentState = priceData.state;
+
+			if (this.currentState === App.BIN_PROC.NONE) {
+				return;
+			}
+			// if (App.main.isBreakTime()) {
+			// 	return;
+			// }
+
+			console.log('price data', priceData);
+			console.log('start check', priceData.startCheck, ':', priceData.startCheck / 1000);
+			console.log('state', priceData.state);
+
+			var breakTimeLeft = Math.floor(priceData.startCheck / 1000) - 120;
+			console.log('breakTimeLeft', breakTimeLeft, breakTimeLeft>=30);
+			if (priceData.state === App.BIN_PROC.RESULT) {
+				if (breakTimeLeft >= 30) {
+					this.showProgressImage(breakTimeLeft);
+				} else {
+					this.showBaseValueOverlay(priceData);
+					this.showResultValueOverlay(priceData);
+				}
+
 				return;
 			}
 
@@ -45,6 +71,21 @@ App.main = (function() {
 				App.main.resetState();
 				App.main.prepareMainChart(priceData);
 				App.main.prepareBaseChart(priceData);
+				this.count = priceData.avgPriceList.length > 0 ? priceData.avgPriceList.length - 1 : 0;
+
+				if (this.count > 0 && this.startPointBaseValue === 0) {
+					this.startPointBaseValue = priceData.avgPriceList[0];
+					this.baseChart.setBasePointValue(this.startPointBaseValue);
+				} else if (this.count >= this.basePoint && this.endPointBaseValue === 0) {
+					this.endPointBaseValue = priceData.avgPriceList[this.basePoint];
+				}
+
+				if (this.count > this.basePoint) {
+					this.showBaseValueOverlay(priceData);
+					App.main.prepareResultChart(priceData);
+					this.resultChart.setBasePointValue(this.endPointBaseValue);
+					this.mainChart.makeResultLine(this.endPointBaseValue);
+				}
 			} else {
 				App.main.updateData(priceData);
 			}
@@ -104,7 +145,7 @@ App.main = (function() {
 
 				this.baseChart.updateMaxValue(this.mainChart.getMaxValue());
 				this.baseChart.updateMinValue(this.mainChart.getMinValue());
-			} else {
+			} else if (this.count <= this.basePoint) {
 				this.baseChart.setBasePointValue(this.startPointBaseValue);
 				this.baseChart.updateData(priceData);
 			}
@@ -124,8 +165,6 @@ App.main = (function() {
 			this.breakTime = true;
 			this.showResultValueOverlay(priceData);
 			setTimeout(function() {
-				this.hideMainOverlay();
-				this.disposeAllChart();
 				this.showProgressImage();
 			}.bind(this), 29000);
 		},
@@ -149,7 +188,11 @@ App.main = (function() {
 		},
 
 		prepareBaseChart: function(priceData) {
-			this.baseChart = new App.UpDownChart('base_chart_div', priceData);
+			this.baseChart = new App.UpDownChart('base_chart_div', priceData, 'left');
+		},
+
+		prepareResultChart: function(priceData) {
+			this.resultChart = new App.UpDownChart('result_chart_div', priceData, 'right');
 		},
 
 		getBasePoint: function() {
@@ -183,7 +226,7 @@ App.main = (function() {
 		},
 
 		addResultChart: function(priceData) {
-			this.resultChart = new App.UpDownChart('result_chart_div', priceData);
+			this.resultChart = new App.UpDownChart('result_chart_div', priceData, 'right');
 		},
 
 		showBaseValueOverlay: function(priceData) {
@@ -274,15 +317,23 @@ App.main = (function() {
 			this.resultChart = undefined;
 		},
 
-		showProgressImage: function() {
+		showProgressImage: function(leftTime) {
+			this.hideMainOverlay();
+			this.disposeAllChart();
+
 			var breakTimeOverlay = document.querySelector('#break_time_overlay');
 			var imageElem = breakTimeOverlay.querySelector('.image');
 			var counterElem = breakTimeOverlay.querySelector('.label');
 			if (breakTimeOverlay.style.display === '' || breakTimeOverlay.style.display === 'none') {
 				breakTimeOverlay.style.display = 'block';
-				var count = 1;
+				var count = 0;
+				if (!_.isNil(leftTime)) {
+					count = leftTime - 30;
+					imageElem.style.width = (100 - (3.4 * count)) + '%';
+					counterElem.textContent = (60 - leftTime) + '초 후 시작';
+				}
 				var imageInterval = setInterval(function() {
-					if (count === 30) {
+					if (count === 29) {
 						clearInterval(imageInterval);
 						this.breakTime = false;
 						return false;
@@ -293,8 +344,8 @@ App.main = (function() {
 					} else {
 						imageElem.style.width = '0%';
 					}
-					var counter = counterElem.textContent.replace('초 후 시작합니다.', '');
-					counter = (counter - 1) + '초 후 시작합니다.';
+					var counter = counterElem.textContent.replace('초 후 시작', '');
+					counter = (counter - 1) + '초 후 시작';
 					counterElem.textContent = counter;
 					count++;
 				}.bind(this), 1000);

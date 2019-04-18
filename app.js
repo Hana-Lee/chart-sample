@@ -1,17 +1,18 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var debug = require('debug')('chart-sample:server');
-var http = require('http');
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var dataRouter = require('./routes/data');
-var moment = require('moment');
-var axios = require('axios');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const debug = require('debug')('chart-sample:server');
+const http = require('http');
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/users');
+const dataRouter = require('./routes/data');
+const moment = require('moment');
+const axios = require('axios');
 
-var app = express();
+const app = express();
+const crawler = require('./binary-crawler');
 // binance recover key CURPSZ5NAQ5JPZXX
 // var apiKey = 'xQZsNkCQRWTPM8x35hXYcHj5By0uScLX9v4d4lkFKxjdLIIHFal2YOaNoFcXaTCo';
 // var apiSecret = '09fNv6Om0s2o5bFYjbEjzowhwEJbMRE2lXb4BL2ckfxmIhoJRuif6HDyQ5Zhvuu8';
@@ -101,55 +102,55 @@ BINANCE ticker response
   totalTrades: 6578
 }
 */
-var biPriceTemp = 0;
-var ixPriceTemp = 0;
-var biPrice = 0;
-var biTimestamp = 0;
-var ixPrice = 0;
-var ixTimestamp = 0;
-var prevTime = 0;
-var avgPrice = 0;
-setInterval(function () {
-	if (biPriceTemp > 0 && ixPriceTemp > 0 && biTimestamp > 0 && ixTimestamp > 0) {
-		var time;
-		var cTime = new Date().getTime();
-		if (!prevTime) {
-			time = 'START';
-			prevTime = new Date().getTime();
-		} else {
-			time = Math.ceil((cTime - prevTime) / 1000) + 's';
-			prevTime = cTime;
-		}
-		console.log('===================', moment().format('YYYY-MM-DD HH:mm:ss'), '(', time, ')', '==============================');
-		console.log('bi price', Number(biPrice).toFixed(2), ', timestamp', biTimestamp, ', date', moment(biTimestamp).format('YYYY-MM-DD HH:mm:ss'));
-		console.log('ix price', ixPrice, ', timestamp', ixTimestamp, ', date', moment(Number(ixTimestamp)).format('YYYY-MM-DD HH:mm:ss'));
-		console.log('=====================================================================');
-		biPriceTemp = 0;
-		ixPriceTemp = 0;
-	}
-}, 100);
+let biPriceTemp = 0;
+let ixPriceTemp = 0;
+let biPrice = 0;
+let biTimestamp = 0;
+let ixPrice = 0;
+let ixTimestamp = 0;
+let prevTime = 0;
+let avgPrice = 0;
+// setInterval(function () {
+	// if (biPriceTemp > 0 && ixPriceTemp > 0 && biTimestamp > 0 && ixTimestamp > 0) {
+	// 	let time;
+	// 	const cTime = new Date().getTime();
+	// 	if (!prevTime) {
+	// 		time = 'START';
+	// 		prevTime = new Date().getTime();
+	// 	} else {
+	// 		time = Math.ceil((cTime - prevTime) / 1000) + 's';
+	// 		prevTime = cTime;
+	// 	}
+	// 	console.log('===================', moment().format('YYYY-MM-DD HH:mm:ss'), '(', time, ')', '==============================');
+	// 	console.log('bi price', Number(biPrice).toFixed(2), ', timestamp', biTimestamp, ', date', moment(biTimestamp).format('YYYY-MM-DD HH:mm:ss'));
+	// 	console.log('ix price', ixPrice, ', timestamp', ixTimestamp, ', date', moment(Number(ixTimestamp)).format('YYYY-MM-DD HH:mm:ss'));
+	// 	console.log('=====================================================================');
+	// 	biPriceTemp = 0;
+	// 	ixPriceTemp = 0;
+	// }
+// }, 100);
 
-setInterval(function () {
-	var p1 = axios.get('https://openapi.idax.pro/api/v2/ticker?pair=BTC_USDT');
-	// .then(function(response) {
-	// console.log('response', response.data.ticker[0].last);
+// setInterval(function () {
+	// const p1 = axios.get('https://openapi.idax.pro/api/v2/ticker?pair=BTC_USDT');
+	// // .then(function(response) {
+	// // console.log('response', response.data.ticker[0].last);
+	// // });
+	//
+	// // /v1/ticker/allPrices
+	// // https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT
+	// const p2 = axios.get('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT');
+	// Promise.all([p1, p2]).then(function (results) {
+	// 	const now = new Date();
+	// 	const p1Result = results[0];
+	// 	const p2Result = results[1];
+	// 	if (p1Result.data.code === 10000) {
+	// 		ixPrice = ixPriceTemp = Number(p1Result.data.ticker[0].last);
+	// 		biPrice = biPriceTemp = Number(Number(p2Result.data.price).toFixed(2));
+	// 		avgPrice = Number(((ixPrice + biPrice) / 2).toFixed(2));
+	// 		biTimestamp = ixTimestamp = now.getTime();
+	// 	}
 	// });
-
-	// /v1/ticker/allPrices
-	// https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT
-	var p2 = axios.get('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT');
-	Promise.all([p1, p2]).then(function (results) {
-		var now = new Date();
-		var p1Result = results[0];
-		var p2Result = results[1];
-		if (p1Result.data.code === 10000) {
-			ixPrice = ixPriceTemp = Number(p1Result.data.ticker[0].last);
-			biPrice = biPriceTemp = Number(Number(p2Result.data.price).toFixed(2));
-			avgPrice = Number(((ixPrice + biPrice) / 2).toFixed(2));
-			biTimestamp = ixTimestamp = now.getTime();
-		}
-	});
-}, 1000);
+// }, 1000);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -184,55 +185,92 @@ app.use(function (err, req, res, next) {
 /**
  * Get port from environment and store in Express.
  */
-
-var port = normalizePort(process.env.PORT || '3000');
+const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
 /**
  * Create HTTP server.
  */
+const server = http.createServer(app);
+const io = require('socket.io')(server);
 
-var server = http.createServer(app);
-var io = require('socket.io')(server);
 /**
  * Listen on provided port, on all network interfaces.
  */
-
+let dataObj = {};
+let socketList = [];
+let intervalList = [];
 function sendData(socket) {
-	var data = {
-		biPrice: biPrice,
-		ixPrice: ixPrice,
-		avgPrice: avgPrice,
-		maxPrice: biPrice + 1.5,
-		minPrice: ixPrice - 1.5,
-		time: biTimestamp,
-		timeString: moment(biTimestamp).format('HH:mm:ss'),
-	};
-
-	socket.emit('priceData', data);
+	socketList.push(socket);
+	intervalList.push(setInterval(function() {
+		const data = {
+			state: dataObj.state,
+			biPrice: dataObj.biPrice,
+			ixPrice: dataObj.ixPrice,
+			avgPrice: dataObj.avgPrice,
+			startMaxPrice: dataObj.startMaxPrice,
+			startMinPrice: dataObj.startMinPrice,
+			openMaxPrice: dataObj.openMaxPrice,
+			openMinPrice: dataObj.openMinPrice,
+			biPriceList: dataObj.biPriceList,
+			ixPriceList: dataObj.ixPriceList,
+			avgPriceList: dataObj.avgPriceList,
+			startBaseValue: dataObj.startBaseValue,
+			resultBaseValue: dataObj.resultBaseValue,
+			time: dataObj.openTime,
+			startCheck : dataObj.startCheck,
+		};
+		socket.emit('priceData', data);
+	}, 1000));
 }
 
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 io.on('connection', function (socket) {
-	socket.emit('news', { hello: 'world' });
-	socket.on('my other event', function (data) {
-		console.log('my other event data', data);
-	});
+	// socket.emit('news', { hello: 'world' });
+	// socket.on('my other event', function (data) {
+	// 	console.log('my other event data', data);
+	// });
+	//
+	// sendData(socket);
+	const interval = setInterval(() => {
+		if (new Date().getSeconds() % 3 === 0) {
+			sendData(socket);
+			clearInterval(interval);
+		}
+	}, 100);
 
-	sendData(socket);
-	setInterval(function() {
-		sendData(socket);
-	}, 1000);
+	socket.on('disconnect', () => {
+		const socketIdx = socketList.indexOf(socket);
+		if (socketIdx > -1) {
+			clearInterval(intervalList[socketIdx]);
+			socketList.splice(socketIdx, 1);
+			intervalList.splice(socketIdx, 1);
+		}
+	});
 });
+async function startWatching() {
+	await crawler.prepareWatchProc();
+	// await crawler.watchProc();
+	setInterval(async () => {
+		dataObj = await crawler.watchProc();
+	}, 1000);
+}
+
+const startInterval = setInterval(async () => {
+	if (new Date().getSeconds() % 3 === 0) {
+		await startWatching();
+		clearInterval(startInterval);
+	}
+}, 100);
 
 /**
  * Normalize a port into a number, string, or false.
  */
 
 function normalizePort(val) {
-	var port = parseInt(val, 10);
+	const port = parseInt(val, 10);
 
 	if (isNaN(port)) {
 		// named pipe
@@ -256,7 +294,7 @@ function onError(error) {
 		throw error;
 	}
 
-	var bind = typeof port === 'string'
+	const bind = typeof port === 'string'
 		? 'Pipe ' + port
 		: 'Port ' + port;
 
@@ -280,7 +318,7 @@ function onError(error) {
  */
 
 function onListening() {
-	var addr = server.address();
-	var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
+	const addr = server.address();
+	const bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
 	debug('Listening on ' + bind);
 }
