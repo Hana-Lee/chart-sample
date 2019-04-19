@@ -203,7 +203,6 @@ let intervalList = [];
 function sendData(socket) {
 	socketList.push(socket);
 	intervalList.push(setInterval(function() {
-		console.log('dataobj max', dataObj.startMaxPrice);
 		const data = {
 			state: dataObj.state,
 			biPrice: dataObj.biPrice,
@@ -220,6 +219,7 @@ function sendData(socket) {
 			resultBaseValue: dataObj.resultBaseValue,
 			time: dataObj.openTime,
 			startCheck : dataObj.startCheck,
+			count: dataObj.count,
 		};
 		socket.emit('priceData', data);
 	}, 1000));
@@ -264,7 +264,7 @@ const startInterval = setInterval(async () => {
 		await startWatching();
 		clearInterval(startInterval);
 	}
-}, 100);
+}, 200);
 
 /**
  * Normalize a port into a number, string, or false.

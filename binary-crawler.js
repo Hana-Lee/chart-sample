@@ -50,6 +50,7 @@ const dataObj = {
 	avgPriceList: [],
 	startBaseValue: 0,
 	resultBaseValue: 0,
+	count: 0,
 };
 let serverTimes = null;
 let diff = 0;
@@ -128,6 +129,9 @@ const watchProc = async function() {
 	// 2분때, closePoint 때에 binance 는 openPoint 로 값을 불러서 close 값으로,
 	// idax 는 closePoint 로 값을 불러서 close 값을 마감값으로
 	if (dataObj.state === BIN_PROC.NONE) {
+		if (dataObj.count > 0) {
+			dataObj.count = 0;
+		}
 		if (startCheck < OPEN_TIME_MS) {
 			dataObj.state = BIN_PROC.START;
 			dataObj.gameKey = gameKey;
@@ -151,6 +155,7 @@ const watchProc = async function() {
 			console.log("next waiting")
 		}
 	} else if (dataObj.state === BIN_PROC.START) {
+		dataObj.count++;
 		if (now.getTime() > openPoint) {
 			//open 가를 두 사이트에서 가지고 온다
 			let retGet = await getAllKline(gameKey, openPoint);
@@ -178,11 +183,11 @@ const watchProc = async function() {
 			dataObj.ixPriceList.push(retGet.idax);
 			dataObj.biPriceList.push(retGet.binance);
 			dataObj.avgPriceList.push(retGet.av);
-			console.log('START');
 		} else {
 			await getAllPrice();
 		}
 	} else if (dataObj.state === BIN_PROC.OPEN) {
+		dataObj.count++;
 		if (now.getTime() > closePoint) {
 			//close 가를 두 사이트에서 가지고 온다
 			let retGet = await getAllKline(openPoint, closePoint);
@@ -209,7 +214,6 @@ const watchProc = async function() {
 			dataObj.ixPriceList.push(retGet.idax);
 			dataObj.biPriceList.push(retGet.binance);
 			dataObj.avgPriceList.push(retGet.av);
-			console.log('OPEN');
 			//await pushBinListOpen(gameKey, retGet.av)
 		} else {
 			await getAllPrice();
@@ -221,7 +225,9 @@ const watchProc = async function() {
 			//새로운 회차 시작
 			dataObj.state = BIN_PROC.START;
 			dataObj.gameKey = gameKey;
-
+			if (dataObj.count > 0) {
+				dataObj.count = 0;
+			}
 			if (dataObj.ixPriceList.length > 0) {
 				dataObj.startMaxPrice = 0;
 				dataObj.startMinPrice = 0;
@@ -236,7 +242,6 @@ const watchProc = async function() {
 				dataObj.startBaseValue = 0;
 				dataObj.resultBaseValue = 0;
 			}
-			console.log('RESULT');
 		} else {
 			console.log(
 				"waiting new set, datakey(%d), gameKey(%d)",
@@ -257,9 +262,10 @@ const getAllPrice = async function() {
 			const p1Result = results[0];
 			const p2Result = results[1];
 			if (p1Result.data.code === 10000) {
-				const ixPrice = Number(p1Result.data.ticker[0].last);
-				const biPrice = Number(Number(p2Result.data.price).toFixed(2));
-				const avgPrice = Number(((ixPrice + biPrice) / 2).toFixed(2));
+				const ixPrice = Math.floor(p1Result.data.ticker[0].last * 100) / 100;
+				const biPrice = Math.floor(p2Result.data.price * 100) / 100;
+				const average = (ixPrice + biPrice) / 2;
+				const avgPrice = Number((Math.floor(average * 100) / 100).toFixed(2));
 				dataObj.ixPrice = ixPrice;
 				dataObj.biPrice = biPrice;
 				dataObj.avgPrice = avgPrice;
@@ -375,7 +381,7 @@ const getAllKline = async function(nowPoint, nextPoint) {
 				//let data4 = util.format("time:(%s),refKey(%s),data:(%d)",now.toString(),now.getTime(),av);
 				//logger4.info(data4);
 				if (av > 0) {
-					av = Math.floor(av * 100) / 100
+					av = Number((Math.floor(av * 100) / 100).toFixed(2));
 				}
 			}
 
